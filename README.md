@@ -9,4 +9,4 @@ The current version includes:
 
  cont.pairs - plot an NxN matrix summarising pairwise relationships between variables
 
-![example](https://raw.github.com/svdataman/tonic/figures/ContPairs_test.png)
+![example](figures/ContPairs_test.png)
