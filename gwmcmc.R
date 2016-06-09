@@ -7,7 +7,14 @@
 # F. Hou, J. Goodman, D. Hogg, J. Weare, C. Schwab, 2012, ApJ, v745, 198 
 # D. Foreman-Mackey, 2013, PASJ (http://arxiv.org/abs/1202.3665)
 # ------------------------------------------------
-
+# To do:
+#  Add more information to output. Use a list as output and include
+#  details of the algorithm used, Nwalkers, etc.
+#  Write diagnostic plotting routine, show trace, ACF and histogram
+#  for ACF include walker-averaged ACF.
+#
+#
+#
 # ------------------------------------------------
 # gw.mcmc - Ensemble Markov Chain Monte Carlo sampler
 # Inputs: 
@@ -216,21 +223,23 @@ gw.mcmc <- function(posterior,
     
   # strip off and check the acceptance rate (column M+1).
   # Also strip off the log(posterior) values which are no longer needed.
-  accept.rate <- mean( theta[,,M+1], na.rm=TRUE ) 
+  accept.rate <- mean(theta[,,M + 1], na.rm = TRUE)
   if (chatter > 0) {
     print(end.time - start.time)
-    cat('\n-- Final acceptance rate: ', accept.rate, fill=TRUE)
+    cat('\n-- Final acceptance rate: ', accept.rate, fill = TRUE)
     if (accept.rate < 0.05) {
-      cat('-- Low acceptance rate. Consider the following suggestions:', fill=TRUE)
-      cat('-- 1. Increase number of walkers: nwalkers.', fill=TRUE)
-      cat('-- 2. Lower the jump scale parameter: atune.', fill=TRUE)
-      cat('-- 3. Adjust the start position: theta.0,', fill=TRUE)
-      cat('-- 4. increasing the variances of the start point randomisation: 
-          scale.init or cov.init.', fill=TRUE)
+      cat('-- Low acceptance rate. Consider the following suggestions:', fill =
+            TRUE)
+      cat('-- 1. Increase number of walkers: nwalkers.', fill = TRUE)
+      cat('-- 2. Lower the jump scale parameter: atune.', fill = TRUE)
+      cat('-- 3. Adjust the start position: theta.0,', fill = TRUE)
+      cat('-- 4. increasing the variances of the start point 
+           randomisation: scale.init or cov.init.', fill = TRUE
+      )
     }
   }
   theta <- theta[,,1:M]
-    
+  
   # thin the output by keeping only every few rows
   if (!is.null(thin)) {
     nrow.keep <- floor(nrows / thin)
@@ -243,9 +252,9 @@ gw.mcmc <- function(posterior,
   # M-dimensional distribution.
   if (merge.walkers == TRUE) {
     nrows <- dim(theta)[1]
-    theta <- matrix(theta, nrow=nwalkers*nrows, ncol=M, byrow=FALSE)
+    theta <- matrix(theta, nrow = nwalkers * nrows, ncol = M, byrow = FALSE)
   }
-    
+  
   # return the final array
   return(theta)
   
@@ -482,25 +491,25 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
     # now compute the random step W from the sum of all the deviations
     # (Sum over all the delta.k's to get an M-vector.)
     # This is eqn 11 of Goodman & Weare except I correct it by 
-    # a factor 1/sqrt(N) to ensure the covarince matric is as required.
+    # a factor 1/sqrt(N) to ensure the covarince matrix is as required.
     W <- apply(W.k, 2, sum) / sqrt(S)
     
     # proposed new position for the jth walker
     X.prop <- X.pres + W
     
     if (chatter > 10) {
-      cat('-- Walk move --', fill=TRUE)
-      cat('-- dimensions of X.comp', NROW(X.comp), NCOL(X.comp), fill=TRUE)
-      cat('-- dimensions of X.mean', NROW(X.mean), NCOL(X.mean), fill=TRUE)
-      cat('-- dimensions of delta.k', NROW(delta.k), NCOL(delta.k), fill=TRUE)
-      cat('-- dimensions of W.k', NROW(W.k), NCOL(W.k), fill=TRUE)
-      cat('-- dimensions of W', NROW(W), NCOL(W), fill=TRUE)
+#      cat('-- Walk move --', fill=TRUE)
+#      cat('-- dimensions of X.comp', NROW(X.comp), NCOL(X.comp), fill=TRUE)
+#      cat('-- dimensions of X.mean', NROW(X.mean), NCOL(X.mean), fill=TRUE)
+#      cat('-- dimensions of delta.k', NROW(delta.k), NCOL(delta.k), fill=TRUE)
+#      cat('-- dimensions of W.k', NROW(W.k), NCOL(W.k), fill=TRUE)
+#      cat('-- dimensions of W', NROW(W), NCOL(W), fill=TRUE)
       cat('-- X.pres', X.pres, fill=TRUE)
       cat('-- X.mean', X.mean, fill=TRUE)
       cat('-- W', W, fill=TRUE)
       cat('-- X.prop', X.prop, fill=TRUE)
       cat('-- subsample', s, fill=TRUE)
-      cat('-- stune', S, fill=TRUE)
+#      cat('-- stune', S, fill=TRUE)
     }
     
     # evalute the log PDF at the existing and proposed positions.

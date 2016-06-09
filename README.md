@@ -1,5 +1,4 @@
 # tonic
-MCMC with R
 
 Tonic is a collection of pure R tools for generating and manipulating MCMC output. 
 
@@ -11,7 +10,7 @@ The current version includes:
 
 ## Installation
 
-Tonic is not (yet) and R package. To set up the R functions source the .R files
+Tonic is not (yet) an R package. To set up the R functions source the .R files
 
 ```R
 source("gwmcmc.R")
