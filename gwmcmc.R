@@ -197,9 +197,11 @@ gw.mcmc <- function(posterior,
     # update the walkers' position to step i using their positions
     # at step i-1
     if (do.walk == TRUE) {
-      theta.now <- walk.move(posterior, theta.now, chatter = chatter, stune, ...)  
+      theta.now <- walk.move(posterior, theta.now, 
+                             chatter = chatter, stune, ...)  
     } else {
-      theta.now <- stretch.move(posterior, theta.now, chatter = chatter, atune, ...)  
+      theta.now <- stretch.move(posterior, theta.now, 
+                                chatter = chatter, atune, ...)  
     }
     
     # safety check
@@ -254,8 +256,8 @@ gw.mcmc <- function(posterior,
     print(end.time - start.time)
     cat('\n-- Final acceptance rate: ', accept.rate, fill = TRUE)
     if (accept.rate < 0.05) {
-      cat('-- Low acceptance rate. Consider the following suggestions:', fill =
-            TRUE)
+      cat('-- Low acceptance rate. Consider the following suggestions:', 
+          fill = TRUE)
       cat('-- 1. Increase number of walkers: nwalkers.', fill = TRUE)
       cat('-- 2. Lower the jump scale parameter: atune.', fill = TRUE)
       cat('-- 3. Adjust the start position: theta.0,', fill = TRUE)
@@ -399,13 +401,17 @@ stretch.move <- function(posterior, theta, a, chatter=0, ...) {
 # walk - update an ensemble of 'walkers' using the 'walk move'
 #
 # Inputs: 
-#   theta      - (array) nwalkers (rows) * M+2 (columns) current position of each walker
+#   theta      - (array) nwalkers (rows) * M+2 (columns) current position 
+#                   of each walker
 #   S          - (integer) size of the complementary sample 
-#   posterior  - (function) name of the log(posterior) function we are sampling from
-#   ...        - (anything else) any other arguments needed for the posterior function
+#   posterior  - (function) name of the log(posterior) function we are 
+#                   sampling from
+#   ...        - (anything else) any other arguments needed for the 
+#                   posterior function
 #
 # Value:
-#   theta     - (array) nwalkers (rows) * M+2 (columns) updated position of each walker
+#   theta     - (array) nwalkers (rows) * M+2 (columns) updated position 
+#                 of each walker
 #
 # Description:
 # A simple implementation of the ensemble MCMC sampler proposed by Goodman &
@@ -500,7 +506,8 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
     X.mean <- apply(X.comp, 2, mean)
     
     # find deviation of each complementary walker from their mean
-    # delta.k is a [S, M] matrix; each row is difference of a walker from the mean
+    # delta.k is a [S, M] matrix; each row is difference of a walker 
+    # from the mean
     delta.k <- X.comp - X.mean[col(X.comp)]
     
     # randomly weight each deviation
