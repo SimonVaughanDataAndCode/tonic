@@ -526,12 +526,6 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
     X.prop <- X.pres + W
     
     if (chatter > 10) {
-#      cat('-- Walk move --', fill=TRUE)
-#      cat('-- dimensions of X.comp', NROW(X.comp), NCOL(X.comp), fill=TRUE)
-#      cat('-- dimensions of X.mean', NROW(X.mean), NCOL(X.mean), fill=TRUE)
-#      cat('-- dimensions of delta.k', NROW(delta.k), NCOL(delta.k), fill=TRUE)
-#      cat('-- dimensions of W.k', NROW(W.k), NCOL(W.k), fill=TRUE)
-#      cat('-- dimensions of W', NROW(W), NCOL(W), fill=TRUE)
       cat('-- X.pres', X.pres, fill=TRUE)
       cat('-- X.mean', X.mean, fill=TRUE)
       cat('-- W', W, fill=TRUE)

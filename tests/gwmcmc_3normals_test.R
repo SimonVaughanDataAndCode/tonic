@@ -6,11 +6,11 @@
 
 my.pdf <- function(theta) {
   n <- 3
-  cov <- diag(n) * 0.05
+  cov <- diag(n) * 0.03
   P1 <- mvtnorm::dmvnorm(theta, mean=c(0,0,0), sigma=cov)
-  cov <- diag(n) * 0.05
+  cov <- diag(n) * 0.03
   P2 <- mvtnorm::dmvnorm(theta, mean=c(2,2,2), sigma=cov)
-  cov <- diag(n) * 0.05
+  cov <- diag(n) * 0.03
   P3 <- mvtnorm::dmvnorm(theta, mean=c(3,-2,3), sigma=cov)
   logP <- log(0.5*P1 + 0.5*P2 + 0.5*P3)
   return(logP)
@@ -19,11 +19,11 @@ my.pdf <- function(theta) {
 # ------------------------------------------------
 # test
 
-theta <- gw.mcmc(my.pdf, theta.0=c(0,0,0), nsteps=10e4, cov.init = diag(3)*2,
-                  chatter=1, walk.rate=2) #, merge.walkers=FALSE)
+chain <- gw.mcmc(my.pdf, theta.0=c(0,0,0), nsteps=10e4, cov.init = diag(3)*2,
+                  chatter=1, burn.in = 1e4, walk.rate=5) #, merge.walkers=FALSE)
 
-#plot(result[,1], -result[,2]-result[,1])
-#plot(theta[,1], theta[,2])
+mcmc.diag.plot(chain)
+theta <- chain$theta
 
 x <- c(0,0,0)
 print(mean(sqrt((theta[,1]-x[1])^2+(theta[,2]-x[2])^2+(theta[,3]-x[3])^2) < 2))
