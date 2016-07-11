@@ -7,14 +7,22 @@
 # F. Hou, J. Goodman, D. Hogg, J. Weare, C. Schwab, 2012, ApJ, v745, 198 
 # D. Foreman-Mackey, 2013, PASJ (http://arxiv.org/abs/1202.3665)
 # ------------------------------------------------
-# To do:
-#  Add more information to output. Use a list as output and include
-#  details of the algorithm used, Nwalkers, etc.
-#  Write diagnostic plotting routine, show trace, ACF and histogram
-#  for ACF include walker-averaged ACF.
-#
-#
-#
+
+gw.mcmc <- function(posterior, 
+                    theta.0, 
+                    nsteps=1E4,
+                    nwalkers=100,
+                    burn.in=10,
+                    update=5,
+                    chatter=1,
+                    thin=NULL,
+                    scale.init=NULL,
+                    cov.init=NULL,
+                    walk.rate=0,
+                    atune=2.0,
+                    stune=NULL,
+                    merge.walkers=TRUE, ...) {
+
 # ------------------------------------------------
 # gw.mcmc - Ensemble Markov Chain Monte Carlo sampler
 # Inputs: 
@@ -24,18 +32,27 @@
 #   nwalkers   - (integer) number of 'walkers' (default: 100; should be > M)
 #   burn.in    - (integer) the 'burn-in' period for the walkers
 #   update     - (integer) print a progress update after <update> steps
-#   chatter    - (integer) how verbose is the output? (0=quiet, 1=normal, 2=verbose)
+#   chatter    - (integer) how verbose is the output? 
+#                   (0=quiet, 1=normal, 2=verbose)
 #   atune      - (float) set the scale size of the random jumps (default: 2.0)
-#   thin       - (integer) 'thin' the output by keeping only every <thin> sample
-#   scale.init - (float) set the variances when randomising the walkers' start positions 
-#   cov.init   - (matrix) specify exact covariance matrix for randomising the walkers' 
-#                        start positions 
+#   thin       - (integer) keep only every <thin> sample
+#   scale.init - (float) variances for randomising walkers' start positions 
+#   cov.init   - (matrix) specify exact covariance matrix for randomising 
+#                    walkers' start positions 
 #   merge.walkers - TRUE/FALSE combine output from all walkers into one
-#   walk.rate  - Fraction of moves (0-1) to make use of the "walk move" (default: NULL)
-#   ...        - (anything else) any other arguments needed for the posterior function
+#   walk.rate  - Fraction of moves (0-1) to make use of the "walk move" 
+#                 (default: NULL)
+#   ...        - (anything else) other arguments needed for posterior function
 #
 # Value:
-#   theta     - (array) <nsteps> samples from M-dimensional posterior [nsteps rows, M columns]
+#  A list with components
+#   theta     - (array) <nsteps> samples from M-dimensional posterior 
+#                 [nsteps rows, M columns]
+#   func      - (string) name of posterior function sampled
+#   lpost     - (vector) nsteps values of the LogPosterior density at each 
+#                 sample position 
+#   method    - sampling method uses (=gwmcmc)
+#   Nwalkers  - number of walkers used
 #
 # Description:
 # A simple implementation of the ensemble MCMC sampler proposed by Goodman & 
@@ -75,31 +92,18 @@
 #  14/04/16 - v0.2 - Added walk.move as an optional update step
 #  28/04/16 - v0.3 - Added saetfy checks, fixed sqrt(S) error in 
 #                     walk move, reflow comments
+#  11/07/16 - v0.4 - Changed output to a list with additional information
 #
 # Simon Vaughan, University of Leicester
 # Copyright (C) 2016 Simon Vaughan
 
 # ------------------------------------------------
-
-gw.mcmc <- function(posterior, 
-                    theta.0, 
-                    nsteps=1E4,
-                    nwalkers=100,
-                    burn.in=10,
-                    update=5,
-                    chatter=1,
-                    thin=NULL,
-                    scale.init=NULL,
-                    cov.init=NULL,
-                    walk.rate=0,
-                    atune=2.0,
-                    stune=NULL,
-                    merge.walkers=TRUE, ...) {
   
   # check the input arguments
   if (missing(theta.0)) stop('Must specify theta.0 start position.')
   if (missing(posterior)) stop('Must specify name of posterior function')
-  if (!exists('posterior')) stop('The specified log density function does not exist.')
+  if (!exists('posterior')) 
+    stop('The specified log density function does not exist.')
   
   # dimensions of the PDF
   M <- length(theta.0)
@@ -141,14 +145,14 @@ gw.mcmc <- function(posterior,
   theta <- array(NA, dim=c(ncycles, nwalkers, M+2))
   
   # initialise each walker with a slightly different position. The starting 
-  # positions are randomised using a M-dimensional Normal centred on theta.0. If
-  # a matrix cov.init is supplied then use this as the covariance matrix. 
-  # Otherwise create a diagonal covariance matrix and set the variances to be a 
-  # small fraction (scale.init) of the (absolute value of) the start position 
-  # for each variable. If the starting position is exactly zero then use 1E-6 
-  # instead.
+  # positions are randomised using a M-dimensional t distribution centred on 
+  # theta.0. If a matrix cov.init is supplied then use this as the covariance 
+  # matrix. Otherwise create a diagonal covariance matrix and set the variances 
+  # to be a small fraction (scale.init) of the (absolute value of) the start 
+  # position for each variable. If the starting position is exactly zero then 
+  # use 1E-6 instead.
   vars <- scale.init * theta.0^2
-  vars <- pmax(vars, 1E-15)
+  vars <- pmax(vars, 1E-13)
   cov <- diag(vars)
   if (is.matrix(cov.init)) cov <- cov.init
   theta.now <- mvtnorm::rmvnorm(nwalkers, mean=theta.0, sigma=cov)
@@ -199,18 +203,28 @@ gw.mcmc <- function(posterior,
     }
     
     # safety check
-    if (!all(is.finite(theta.now))) stop('Non-finite value in theta.now.')
+    if (!all(is.finite(theta.now[, M+2]))) {
+      mask <- !is.finite(theta.now[, M+2])
+      cat(theta.now[mask,])
+      stop('Non-finite value in theta.now.')
+    }
     
     # save the current position of each walker
-    theta[i,,] <- theta.now         
+    theta[i, , ] <- theta.now         
     
     # progress report to user if requested
-    if (chatter > 0) {
+      i.count <- 1
+      if (chatter > 0) {
       if (i %% update == 0) {
-        accept.rate <- mean( theta[1:i,,M+1], na.rm=TRUE ) 
-        cat("\r-- Cycle", i, "of", ncycles, ". Acceptance rate:", signif(accept.rate*100, 2), "%")
+        accept.rate <- mean( theta[i.count:i,,M+1], na.rm=TRUE ) 
+        cat("\r-- Cycle", i, "of", ncycles, ". Acceptance rate:", 
+            signif(accept.rate*100, 2), "%")
       }
       if (i == ncycles) cat('', fill=TRUE)
+      if (i == nrows.burnin) {
+        cat(' - Finished burn-in', fill=TRUE)
+        i.count <- nrows.burnin+1
+      }
     }
   } # end of main loop (i = 1, ncycles)
 
@@ -219,11 +233,23 @@ gw.mcmc <- function(posterior,
   
   # strip off the burn-in period and keep only nsteps 
   nrows <- nrows.keep
-  theta <- theta[(1:nrows)+nrows.burnin, , ]
-    
-  # strip off and check the acceptance rate (column M+1).
+  theta <- theta[(1:nrows) + nrows.burnin, , ]
+
+  # thin the output by keeping only every few rows
+  if (!is.null(thin)) {
+    nrow.keep <- floor(nrows / thin)
+    mask <- (1:nrow.keep) * thin
+    theta <- theta[mask,,]
+  }
+  
+  # Strip off the acceptance and log(posterior) columns 
+  accept <- theta[, , M+1]
+  lpost <- as.vector( theta[, , M+2])
+  theta <- theta[, , 1:M]
+  
+  # check the acceptance rate (column M+1).
   # Also strip off the log(posterior) values which are no longer needed.
-  accept.rate <- mean(theta[,,M + 1], na.rm = TRUE)
+  accept.rate <- mean(accept, na.rm = TRUE)
   if (chatter > 0) {
     print(end.time - start.time)
     cat('\n-- Final acceptance rate: ', accept.rate, fill = TRUE)
@@ -238,15 +264,7 @@ gw.mcmc <- function(posterior,
       )
     }
   }
-  theta <- theta[,,1:M]
-  
-  # thin the output by keeping only every few rows
-  if (!is.null(thin)) {
-    nrow.keep <- floor(nrows / thin)
-    mask <- (1:nrow.keep) * thin
-    theta <- theta[mask,,]
-  }
-  
+
   # reshape the array from [nrows, M, nwalkers] to [nrows*nwalkers, M]
   # so each column is one variable, each row is one sample from the M
   # M-dimensional distribution.
@@ -256,8 +274,11 @@ gw.mcmc <- function(posterior,
   }
   
   # return the final array
-  return(theta)
-  
+  return(list(theta = theta,
+              func = deparse(substitute(posterior)),
+              lpost = lpost,
+              method = "gw.mcmc",
+              nwalkers = nwalkers))
 }
 
 # ------------------------------------------------

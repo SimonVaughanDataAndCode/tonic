@@ -403,6 +403,7 @@ plot.cont <- function(x, y,
 #   prob      - mark probability intervals (NULL or vector)
 #   smooth    - FALSE = plot histogram, TRUE = plot smooth density
 #   fill.col  - colour for filling histogram/density plot
+#   xlab, xlab, main - plot titles, same as plot()
 #
 # OUTPUT:
 #   clevels   - the quantiles for the input probability levels
@@ -410,6 +411,8 @@ plot.cont <- function(x, y,
 # History:
 #  04/04/16 - v0.1 - First working version
 #  28/04/16 - v0.2 - Fixed bug in quantile estimation
+#  16/06/16 - v0.3 - Return NULL when prob not given at input
+#                     added inputs for xlab, ylab, main and '...'.
 #
 # Simon Vaughan, University of Leicester
 # Copyright (C) 2016 Simon Vaughan
@@ -421,7 +424,11 @@ plot.dist <- function(x,
                       prob = NULL, 
                       smooth = FALSE, 
                       fill.col = NULL,
-                      plot.lines = TRUE) {
+                      plot.lines = TRUE,
+                      xlab = "",
+                      ylab = "",
+                      main = "",
+                      ...) {
 
   # compute a histogram and a smooth density curve
   
@@ -432,8 +439,8 @@ plot.dist <- function(x,
   
   ylim <- c(0, max(h$density))
   if (smooth == TRUE) ylim[2] <- max(s$y)
-  plot(0, 0, type="n", xlab="", ylab="", xaxt="n", yaxt="n", bty="n",
-       xlim=xlim, ylim=ylim)
+  plot(0, 0, type="n", xlab=xlab, ylab=ylab, main=main, xaxt="n", yaxt="n", bty="n",
+       xlim=xlim, ylim=ylim, ...)
   
   # plot histogram or density curve
 
@@ -461,6 +468,8 @@ plot.dist <- function(x,
     }
     clevels <- c( clevels[1:nlevels], mean(x), 
                   clevels[(nlevels+1):(2*nlevels)] )
+  } else {
+    clevels <- NULL
   }
   
   return(clevels)
