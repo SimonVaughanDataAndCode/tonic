@@ -10,18 +10,18 @@
 
 gw.mcmc <- function(posterior, 
                     theta.0, 
-                    nsteps=1E4,
-                    nwalkers=100,
-                    burn.in=10,
-                    update=5,
-                    chatter=1,
-                    thin=NULL,
-                    scale.init=NULL,
-                    cov.init=NULL,
-                    walk.rate=0,
-                    atune=2.0,
-                    stune=NULL,
-                    merge.walkers=TRUE, ...) {
+                    nsteps = 1E4,
+                    nwalkers = 100,
+                    burn.in = 2E3,
+                    update = 5,
+                    chatter = 1,
+                    thin = NULL,
+                    scale.init = NULL,
+                    cov.init = NULL,
+                    walk.rate = 0,
+                    atune = 2.0,
+                    stune = NULL,
+                    merge.walkers = TRUE, ...) {
 
 # ------------------------------------------------
 # gw.mcmc - Ensemble Markov Chain Monte Carlo sampler

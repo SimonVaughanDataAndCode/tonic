@@ -33,15 +33,17 @@
     # dimensions of density / no. variables
     ndim <- NCOL(chain$theta)
     
+    nchains <- 1
     # no. walkers if using ensemble method
     if (chain$method == 'gw.mcmc') {
-      nwalkers <- chain$nwalkers
-    } else {
-      nwalkers <- 1
-    }
+      nchains <- chain$nwalkers
+    } 
+    if (chain$method == 'mh.mcmc') {
+      nchains <- chain$nchains
+    } 
     
     # total no. cycles
-    ncycles <- floor(n / nwalkers)
+    ncycles <- floor(n / nchains)
     
     # do the columns of theta come with names?
     if (is.null(colnames(chain$theta))) {
@@ -56,10 +58,10 @@
     # -----------------------------------------
     # trace plots of walkers
     
-    if (nwalkers > 50) {
-      walker.sample <- sample(1:nwalkers, 50)
+    if (nchains > 50) {
+      walker.sample <- sample(1:nchains, 50)
     } else {
-      walker.sample <- 1:nwalkers
+      walker.sample <- 1:nchains
     }
     
     t <- 1:ncycles
@@ -70,7 +72,7 @@
       # Trace plot - for each walker plot theta[j] vs. iteration
 
       x <- chain$theta[,i]
-      dim(x) <- c(ncycles, nwalkers)
+      dim(x) <- c(ncycles, nchains)
       x.mean <- rowMeans(x)
       
       plot(x[,1], bty = "n", main = paste(names[i], "- trace"), type = "n",
@@ -91,12 +93,12 @@
       
       lag.max <- ncycles
       
-      for (j in 1:nwalkers) {
+      for (j in 1:nchains) {
         acf.i <- acf(x[,j], lag.max = lag.max, plot = FALSE)
         if (j == 1) acf.j <- rep(0, length(acf.i$lag))
         acf.j <- acf.j + acf.i$acf
       }
-      acf.j <- acf.j / nwalkers
+      acf.j <- acf.j / nchains
       lag.j <- acf.i$lag
       acf.mean <- acf(x.mean, lag.max = lag.max, plot = FALSE)
       
