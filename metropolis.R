@@ -5,17 +5,11 @@
 #
 # See e.g. Roberts (2015) http://arxiv.org/abs/1504.01896 
 # ------------------------------------------------
+# To do:
+#  Fix R.hat and plots to cope with 'flattened' output
+#
 
 # ------------------------------------------------
-# The MCMC routine. Metropolis-Hastings algorithm
-# using a Normal random walk for the proposal 
-# distribution.
-#
-#  theta.0 - vector of starting parameter values
-#  cov     - covariance matrix for proposal dist.
-#  M       - number of parameters in theta
-#  N       - number of iterations to run
-#  accept  - counter for number of acceptances
 
 mh.mcmc <- function(posterior, 
                    theta.0, 
@@ -28,14 +22,47 @@ mh.mcmc <- function(posterior,
                    thin = NULL, 
                    merge.chains = TRUE,
                    proposal = "normal", ...) {
+
+  # A simple, pure R function to carry generate MCMC output
+  # using the random walk Metropolis-Hastings algorithm.
+  # Uses a Normal or t distribution for the proposal. 
+  #
+  # Input:
+  #  posterior - name of log density funtion to sample from
+  #  theta.0   - vector of starting parameter values
+  #  nsteps     - (integer) total number of samples required
+  #  nchains   - (integer) number of 'chains' to run 
+  #  burn.in    - (integer) the 'burn-in' period for the chains
+  #  update     - (integer) print a progress update after <update> steps
+  #  chatter    - (integer) how verbose is the output? 
+  #                   (0 = quiet, 1 = normal, >1 = verbose)
+  #  thin       - (integer) keep only every <thin> sample
+  #   merge.chains - TRUE/FALSE combine output from all chains into one 2D array?
+  #  cov       - covariance matrix for proposal dist.
+  #  proposl   - Use "normal" proposal, or else "t" distribution
+  #
+  # Value:
+  #  A list with components
+  #   theta     - (array) <nsteps> samples from M-dimensional posterior 
+  #                 [nsteps rows, M columns]
+  #   func      - (string) name of posterior function sampled
+  #   lpost     - (vector) nsteps values of the LogPosterior density at each 
+  #                 sample position 
+  #   method    - sampling method uses (=gwmcmc)
+  #   Nchains  - number of chains used
+  #
+  # NOTE: if merge.chains == FALSE then theta will be a 3D array
+  #  with dimensions nchains * (nsteps/nchains) * M
   
   # check the input arguments
   if (missing(theta.0)) stop('Must specify theta.0 start position.')
   if (missing(posterior)) stop('Must specify name of posterior function')
-  if (!exists('posterior')) 
+  if (!exists('posterior')) {
     stop('The specified log density function does not exist.')
-  if (is.null(cov)) 
+  }
+  if (is.null(cov)) {
     stop('Must specify the covariance matrix (cov).')
+  }
   
   # dimensions of the PDF
   M <- length(theta.0)
@@ -58,7 +85,7 @@ mh.mcmc <- function(posterior,
   # column stores the accept/reject flag (0=rejected, 1=accepted proposal at 
   # each update). This is useful for tracking the acceptance rate. The M+2 
   # column stores the log posterior (PDF) values at the current position of the 
-  # chain. This saves recomputing the posterior density at the current position
+  # chain. This saves recomputing the posterior density at the current position 
   # when evaluating the accept probability.
   theta <- array(NA, dim=c(ncycles, nchains, M+2))
 
@@ -125,7 +152,7 @@ mh.mcmc <- function(posterior,
       if (i == ncycles) cat('', fill=TRUE)
       if (i == nrows.burnin) {
         cat(' - Finished burn-in', fill=TRUE)
-        i.count <- nrows.burnin+1
+        i.count <- nrows.burnin + 1
       }
     }
   } # end of loop over i = 2, ncycles
@@ -143,7 +170,7 @@ mh.mcmc <- function(posterior,
   
   # Strip off the acceptance and log(posterior) columns 
   accept <- theta[, , M+1]
-  lpost <- as.vector( theta[, , M+2])
+  lpost <- as.vector(theta[, , M+2])
   theta <- theta[, , 1:M]
   
   # check the acceptance rate (column M+1).
@@ -158,7 +185,7 @@ mh.mcmc <- function(posterior,
       cat('-- 2. Decrease the covariance for proposal distribution.', fill = TRUE
       )
     }
-    }
+  }
   
   # reshape the array from [nrows, M, nwalkers] to [nrows*nwalkers, M]
   # so each column is one variable, each row is one sample from the M
@@ -176,79 +203,4 @@ mh.mcmc <- function(posterior,
               nchains = nchains))
 }
 
-
-# ------------------------------------------------
-# for each parameter theta[1]...theta[M]
-# calculate the R.hat statistic (Gelman & Rubin 1992)
-# See also Gelman et al. (2004, sect 11.6)
-
-Rhat <- function(theta, M, L) {
-  
-  R.hat <- array(0, dim=M)
-  for (m in 1:M) {
-    tj <- theta[m,,]
-    sj <- apply(tj, 2, var)
-    W <- mean(sj)
-    mj <- apply(tj, 2, mean)
-    B <- var(mj)*L
-    v <- (L-1)/L*W + B/L
-    R.hat[m] <- sqrt(v/W)
-    
-    cat("-- Theta[",m,"] R.hat = ",R.hat[m],sep="")
-    if (R.hat[m] > 1.2) { 
-      cat(" ** High R.hat. Check results. **",fill=TRUE)
-    } else {
-      cat(" -- Good R.hat.", fill=TRUE)
-    }
-  }
-  return(R.hat)
-}
-
-
-# ------------------------------------------------
-# Perform checks for convergence of multiple
-# Markov chains. Uses Gelman & Rubin's R.hat
-# for each parameter, and also a visual check of
-# the 80% regions for each parameter.
-
-mcmc.conv <- function(theta, M, L, J) {
-  
-  layout(t(c(1,2)), widths=c(0.3,0.7))
-  
-  # Calculate R.hat (Gelman & Rubin 1992) for each
-  # parameter as a check for convergence of chains
-  
-  R.hat <- Rhat(theta, M, L)
-  
-  # plot the R.hat results
-  
-  plot(R.hat, 1:M, xlim=c(1,2), ylim=c(0.5,M+0.5), bty="n", pch=16, yaxp=c(1,M,M-1),
-       xlab="R.hat", ylab="Parameter")
-  abline(v=1.1, lty=2)
-  axis(3)
-  
-  # for each parameter theta[1]...theta[M]
-  # calculate and plot the 80% intervals from each chain
-  
-  plot(rep(0,M+1), 1:(M+1), ylim=c(0.5,M+0.5), xlim=c(-2,2), type="n", bty="n",
-       ylab="Parameter", xlab="80% region (scaled)", yaxp=c(1,M,M-1))
-  axis(3)
-  
-  for (m in 1:M) {
-    tj <- theta[m,,]
-    intv <- apply(tj, 2, quantile, prob=c(0.1,0.9))
-    ci0 <- intv[1,]
-    ci1 <- intv[2,]
-    mt <- apply(tj, 2, mean)
-    scale <- mean(ci1-ci0)/2
-    offset <- mean(mt)
-    ci0 <- (ci0 - offset)/scale
-    ci1 <- (ci1 - offset)/scale
-    for (j in 1:J) {
-      x <- m + (j-1)/J/4
-      segments(ci0[j], x,ci1[j], x, col=j)
-    }
-  }
-  
-}
 

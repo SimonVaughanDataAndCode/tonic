@@ -22,88 +22,88 @@ gw.mcmc <- function(posterior,
                     atune = 2.0,
                     stune = NULL,
                     merge.walkers = TRUE, ...) {
-
-# ------------------------------------------------
-# gw.mcmc - Ensemble Markov Chain Monte Carlo sampler
-# Inputs: 
-#   posterior  - (function) name of the log(densiy) function to sampling from
-#   theta.0    - (vector) initial values of the M variables
-#   nsteps     - (integer) total number of samples required
-#   nwalkers   - (integer) number of 'walkers' (default: 100; should be > M)
-#   burn.in    - (integer) the 'burn-in' period for the walkers
-#   update     - (integer) print a progress update after <update> steps
-#   chatter    - (integer) how verbose is the output? 
-#                   (0=quiet, 1=normal, 2=verbose)
-#   atune      - (float) set the scale size of the random jumps (default: 2.0)
-#   thin       - (integer) keep only every <thin> sample
-#   scale.init - (float) variances for randomising walkers' start positions 
-#   cov.init   - (matrix) specify exact covariance matrix for randomising 
-#                    walkers' start positions 
-#   merge.walkers - TRUE/FALSE combine output from all walkers into one
-#   walk.rate  - Fraction of moves (0-1) to make use of the "walk move" 
-#                 (default: NULL)
-#   ...        - (anything else) other arguments needed for posterior function
-#
-# Value:
-#  A list with components
-#   theta     - (array) <nsteps> samples from M-dimensional posterior 
-#                 [nsteps rows, M columns]
-#   func      - (string) name of posterior function sampled
-#   lpost     - (vector) nsteps values of the LogPosterior density at each 
-#                 sample position 
-#   method    - sampling method uses (=gwmcmc)
-#   Nwalkers  - number of walkers used
-#
-# Description:
-# A simple implementation of the ensemble MCMC sampler proposed by Goodman & 
-# Weare (2010). Given some function to compute the log of an (un-normalised) 
-# M-dimensional posterior density function (PDF) this will produce <nsteps> 
-# samples of M-dimensional vectors drawn from the PDF.
-# 
-# It works by running a number <nwalkers> of 'walkers' through the M-dimensional
-# space. At initialisation, all walkers begin near some start point (specified 
-# by theta.0) but have their positions randomised (using a multivariate normal 
-# distribution). The ensemble of walkers then updates each cycle. The updating 
-# is done by the 'stretch move'. The stretch move is handled by seperate 
-# function (stretch.move).
-# 
-# There is an initial period (called the 'burn-in' period) of <burn.in> cycles 
-# that from the beginning of the chain that is discarded. This is to help remove
-# memory of the start positions. After a few cycles the ensemble should have 
-# found regions of high posterior density even if started from a region of low 
-# density.
-# 
-# The chain is then run until there are at least <nsteps> total samples. Each 
-# cycle produces <nwalkers> samples (one from each walker). So we run for nrows 
-# = ceiling(nsteps/nwalkers) cycles after the burn-in period. Any extra cycles 
-# can be discarded.
-# 
-# The user has the option to 'thin' the output. This involves keeping only a 
-# subset of the full chain. If <thin> is equal to 5 then we keep only every 5th 
-# cycle. This helps remove autocorrelation between successive cycles. But modern
-# MCMC practice would advice against this as it throws away perfectly good 
-# samples.
-# 
-# Once we have enough samples the output from all walkers is merged into a
-# single nsteps (rows) * M (columns) array.
-#
-# History:
-#  04/04/16 - v0.1 - First working version
-#  14/04/16 - v0.2 - Added walk.move as an optional update step
-#  28/04/16 - v0.3 - Added saetfy checks, fixed sqrt(S) error in 
-#                     walk move, reflow comments
-#  11/07/16 - v0.4 - Changed output to a list with additional information
-#
-# Simon Vaughan, University of Leicester
-# Copyright (C) 2016 Simon Vaughan
-
-# ------------------------------------------------
+  
+  # gw.mcmc - Ensemble Markov Chain Monte Carlo sampler
+  # Inputs: 
+  #   posterior  - (function) name of the log(densiy) function to sampling from
+  #   theta.0    - (vector) initial values of the M variables
+  #   nsteps     - (integer) total number of samples required
+  #   nwalkers   - (integer) number of 'walkers' (default: 100; should be > M)
+  #   burn.in    - (integer) the 'burn-in' period for the walkers
+  #   update     - (integer) print a progress update after <update> steps
+  #   chatter    - (integer) how verbose is the output? 
+  #                   (0=quiet, 1=normal, 2=verbose)
+  #   atune      - (float) set the scale size of the random jumps (default: 2.0)
+  #   thin       - (integer) keep only every <thin> sample
+  #   scale.init - (float) variances for randomising walkers' start positions 
+  #   cov.init   - (matrix) specify exact covariance matrix for randomising 
+  #                    walkers' start positions 
+  #   merge.walkers - TRUE/FALSE combine output from all walkers into one
+  #   walk.rate  - Fraction of moves (0-1) to make use of the "walk move" 
+  #                 (default: NULL)
+  #   ...        - (anything else) other arguments needed for posterior function
+  #
+  # Value:
+  #  A list with components
+  #   theta     - (array) <nsteps> samples from M-dimensional posterior 
+  #                 [nsteps rows, M columns]
+  #   func      - (string) name of posterior function sampled
+  #   lpost     - (vector) nsteps values of the LogPosterior density at each 
+  #                 sample position 
+  #   method    - sampling method uses (=gwmcmc)
+  #   Nwalkers  - number of walkers used
+  # NOTE: if merge.chains == FALSE then theta will be a 3D array
+  #  with dimensions nchains * (nsteps/nchains) * M
+  #
+  # Description:
+  # A simple implementation of the ensemble MCMC sampler proposed by Goodman & 
+  # Weare (2010). Given some function to compute the log of an (un-normalised) 
+  # M-dimensional posterior density function (PDF) this will produce <nsteps> 
+  # samples of M-dimensional vectors drawn from the PDF.
+  # 
+  # It works by running a number <nwalkers> of 'walkers' through the
+  # M-dimensional space. At initialisation, all walkers begin near some start
+  # point (specified by theta.0) but have their positions randomised (using a
+  # multivariate normal distribution). The ensemble of walkers then updates each
+  # cycle. The updating is done by the 'stretch move'. The stretch move is
+  # handled by seperate function (stretch.move).
+  # 
+  # There is an initial period (called the 'burn-in' period) of <burn.in> cycles
+  # that from the beginning of the chain that is discarded. This is to help
+  # remove memory of the start positions. After a few cycles the ensemble should
+  # have found regions of high posterior density even if started from a region
+  # of low density.
+  # 
+  # The chain is then run until there are at least <nsteps> total samples. Each 
+  # cycle produces <nwalkers> samples (one from each walker). So we run for
+  # nrows = ceiling(nsteps/nwalkers) cycles after the burn-in period. Any extra
+  # cycles can be discarded.
+  # 
+  # The user has the option to 'thin' the output. This involves keeping only a 
+  # subset of the full chain. If <thin> is equal to 5 then we keep only every
+  # 5th cycle. This helps remove autocorrelation between successive cycles. But
+  # modern MCMC practice would advice against this as it throws away perfectly
+  # good samples.
+  # 
+  # Once we have enough samples the output from all walkers is merged into a 
+  # single nsteps (rows) * M (columns) array.
+  #
+  # History:
+  #  04/04/16 - v0.1 - First working version
+  #  14/04/16 - v0.2 - Added walk.move as an optional update step
+  #  28/04/16 - v0.3 - Added saetfy checks, fixed sqrt(S) error in 
+  #                     walk move, reflow comments
+  #  11/07/16 - v0.4 - Changed output to a list with additional information
+  #
+  # Simon Vaughan, University of Leicester
+  # Copyright (C) 2016 Simon Vaughan
   
   # check the input arguments
   if (missing(theta.0)) stop('Must specify theta.0 start position.')
   if (missing(posterior)) stop('Must specify name of posterior function')
-  if (!exists('posterior')) 
+  if (!exists('posterior')) {
     stop('The specified log density function does not exist.')
+  }
   
   # dimensions of the PDF
   M <- length(theta.0)
@@ -142,7 +142,7 @@ gw.mcmc <- function(posterior,
   # column stores the log posterior (PDF) values at the current position of the 
   # walker. This saves recomputing the posterior density at the current position
   # when evaluating the accept probability.
-  theta <- array(NA, dim=c(ncycles, nwalkers, M+2))
+  theta <- array(NA, dim = c(ncycles, nwalkers, M+2))
   
   # initialise each walker with a slightly different position. The starting 
   # positions are randomised using a M-dimensional t distribution centred on 
@@ -165,9 +165,9 @@ gw.mcmc <- function(posterior,
   for (i in 1:nwalkers) {
     theta.now[i, M+2] <- posterior(theta.now[i, 1:M], ...)
   }
-  if (!all(is.finite(theta.now[,M+2]))) {
-    print(theta.now[,1:M])
-    print(theta.now[,M+2])
+  if (!all(is.finite(theta.now[, M+2]))) {
+    print(theta.now[, 1:M])
+    print(theta.now[, M+2])
     stop('Non-finite start values for target PDF.')
   }
   
@@ -175,10 +175,10 @@ gw.mcmc <- function(posterior,
   # each row is the current position of one walker, i.e. an
   # M-dimensional vector (plus the accept/reject flag, and the log(PDF)).
   if (chatter > 1) {
-    cat('-- Dimensions of theta.now array:', dim(theta.now), fill=TRUE)
-    cat('-- Dimensions of theta array:    ', dim(theta), fill=TRUE)
-    cat('-- Number of whole cycles:       ', ncycles, fill=TRUE)
-    cat('-- No. burn-in cycles:           ', nrows.burnin, fill=TRUE)
+    cat('-- Dimensions of theta.now array:', dim(theta.now), fill = TRUE)
+    cat('-- Dimensions of theta array:    ', dim(theta), fill = TRUE)
+    cat('-- Number of whole cycles:       ', ncycles, fill = TRUE)
+    cat('-- No. burn-in cycles:           ', nrows.burnin, fill = TRUE)
   }
   
   # record the start time of the main loop
@@ -207,7 +207,7 @@ gw.mcmc <- function(posterior,
     # safety check
     if (!all(is.finite(theta.now[, M+2]))) {
       mask <- !is.finite(theta.now[, M+2])
-      cat(theta.now[mask,])
+      cat(theta.now[mask, ])
       stop('Non-finite value in theta.now.')
     }
     
@@ -218,14 +218,14 @@ gw.mcmc <- function(posterior,
       i.count <- 1
       if (chatter > 0) {
       if (i %% update == 0) {
-        accept.rate <- mean( theta[i.count:i,,M+1], na.rm=TRUE ) 
+        accept.rate <- mean( theta[i.count:i, , M+1], na.rm = TRUE ) 
         cat("\r-- Cycle", i, "of", ncycles, ". Acceptance rate:", 
             signif(accept.rate*100, 2), "%")
       }
-      if (i == ncycles) cat('', fill=TRUE)
+      if (i == ncycles) cat('', fill = TRUE)
       if (i == nrows.burnin) {
-        cat(' - Finished burn-in', fill=TRUE)
-        i.count <- nrows.burnin+1
+        cat(' - Finished burn-in', fill = TRUE)
+        i.count <- nrows.burnin + 1
       }
     }
   } # end of main loop (i = 1, ncycles)
@@ -241,7 +241,7 @@ gw.mcmc <- function(posterior,
   if (!is.null(thin)) {
     nrow.keep <- floor(nrows / thin)
     mask <- (1:nrow.keep) * thin
-    theta <- theta[mask,,]
+    theta <- theta[mask, , ]
   }
   
   # Strip off the acceptance and log(posterior) columns 
@@ -284,63 +284,62 @@ gw.mcmc <- function(posterior,
 }
 
 # ------------------------------------------------
-# stretch.move - update an ensemble of 'walkers' using the 'stretch move'
-#
-# Inputs: 
-#   posterior  - (function) name of the log(posterior) function to sample from
-#   theta      - (array) nwalkers (rows) * M+2 (columns) 
-#                  the current position of each walker
-#   a          - (float) set the scale size of the random jumps 
-#   ...        - (anything else) any other arguments needed for posterior 
-#
-# Value:
-#   theta     - (array) nwalkers (rows) * M+2 (columns) 
-#                  updated position of each walker
-#
-# Description: 
-# A simple implementation of the ensemble MCMC sampler proposed by Goodman &
-# Weare (2010). Given some function to compute the log of an (un-normalised)
-# M-dimensional posterior density function (PDF) this will produce <nsteps>
-# samples of M-dimensional vectors drawn from the PDF.
-# 
-# At input the array <theta> gives the current position of each walker. There 
-# are <nwalkers> rows, one for each walker. Each row has M+2 columns. The first 
-# 1:M columns are the position of each walker, an M-dimensional vector. On 
-# output the position of each walker is updated. And the M+1 column is assigned 
-# 0 (rejected) or 1 (accepted) depending on whether the walkers' position is 
-# updated this cycle (accept/reject the proposed update position). The M+2 
-# column contains the log(posterior density) at the walkers' current position 
-# (after update).
-# 
-# Each walkers' position is updated in turn. The position of walker j is updated
-# by randomly selecting another walker k from the ensemble (the complementary 
-# walker) and moving along the line joining the current position of walker j to 
-# walker k. The jump size is random and has the distribution suggested by 
-# Goodman & Weare (eqn 9). This updated position for walker i is then accepted 
-# or rejected with a probability that depends on the ratio of the posterior 
-# densities at the current and the proposed new position. If the proposal is 
-# rejected, walker j remains at its current position. Once every walker has been
-# updated (j = 1, 2, ..., nwalkers) we move to cycle i+1 and repeat the update 
-# step.
-# 
-# The random numbers (the size of the jump z and the uniform variate u used to 
-# randomly choose accept/reject) are computed before the loop over walkers 
-# begins. This is to make the code a little more clear and efficient.
-# 
-# History:
-#  04/04/16 - First working version
-#
-# Simon Vaughan, University of Leicester
-# Copyright (C) 2016 Simon Vaughan
-# ------------------------------------------------
 
-stretch.move <- function(posterior, theta, a, chatter=0, ...) {
+stretch.move <- function(posterior, theta, a = 2, chatter = 0, ...) {
 
+  # stretch.move - update an ensemble of 'walkers' using the 'stretch move'
+  #
+  # Inputs: 
+  #   posterior  - (function) name of the log(posterior) function to sample from
+  #   theta      - (array) nwalkers (rows) * M+2 (columns) 
+  #                  the current position of each walker
+  #   a          - (float) set the scale size of the random jumps 
+  #   chatter    - (integer) high values give more runtime output
+  #   ...        - (anything else) any other arguments needed for posterior 
+  #
+  # Value:
+  #   theta     - (array) nwalkers (rows) * M+2 (columns) 
+  #                  updated position of each walker
+  #
+  # Description: 
+  # A simple implementation of the 'strectch move' for the ensemble MCMC 
+  # sampler proposed by Goodman & Weare (2010). 
+  # 
+  # At input the array <theta> gives the current position of each walker. There 
+  # are <nwalkers> rows, one for each walker. Each row has M+2 columns. The
+  # first 1:M columns are the position of each walker, an M-dimensional vector.
+  # On output the position of each walker is updated. And the M+1 column is
+  # assigned 0 (rejected) or 1 (accepted) depending on whether each walker's
+  # position was updated this cycle (accept/reject the proposed update position).
+  # The M+2 column contains the log(posterior density) at each walker's current
+  # position (after update).
+  # 
+  # Each walker's position is updated in turn. The position of walker j is
+  # updated by randomly selecting another walker k from the ensemble (the
+  # complementary walker) and moving along the line joining the current position
+  # of walker j to walker k. The jump size is random and has the distribution
+  # suggested by Goodman & Weare (eqn 9). This updated position for walker i is
+  # then accepted or rejected with a probability that depends on the ratio of
+  # the posterior densities at the current and the proposed new position. If the
+  # proposal is rejected, walker j remains at its current position. Once every
+  # walker has been updated (j = 1, 2, ..., nwalkers) we move to cycle i+1 and
+  # repeat the update step.
+  # 
+  # The random numbers (the size of the jump z and the uniform variate u used to
+  # randomly choose accept/reject) are computed before the loop over walkers 
+  # begins. This is to make the code a little more clear and efficient.
+  # 
+  # History:
+  #  04/04/16 - First working version
+  #
+  # Simon Vaughan, University of Leicester
+  # Copyright (C) 2016 Simon Vaughan
+  
   # number of walkers to treat
   nwalkers <- NROW(theta)
   
   # number of dimensions of each walker
-  M <- as.integer( NCOL(theta)-2 )
+  M <- as.integer( NCOL(theta) - 2 )
   
   # an index of walkers
   walkers <- 1:nwalkers
@@ -389,7 +388,7 @@ stretch.move <- function(posterior, theta, a, chatter=0, ...) {
   } # end of loop (j = 1, nwalkers)
  
   if (chatter > 5) {
-    cat('-- Sretch move accept rate:', mean(theta[,M+1]))
+    cat('-- Sretch move accept rate:', mean(theta[, M+1]))
   }
   
   # return the updated array 
@@ -398,79 +397,78 @@ stretch.move <- function(posterior, theta, a, chatter=0, ...) {
 }
 
 # ------------------------------------------------
-# walk - update an ensemble of 'walkers' using the 'walk move'
-#
-# Inputs: 
-#   theta      - (array) nwalkers (rows) * M+2 (columns) current position 
-#                   of each walker
-#   S          - (integer) size of the complementary sample 
-#   posterior  - (function) name of the log(posterior) function we are 
-#                   sampling from
-#   ...        - (anything else) any other arguments needed for the 
-#                   posterior function
-#
-# Value:
-#   theta     - (array) nwalkers (rows) * M+2 (columns) updated position 
-#                 of each walker
-#
-# Description:
-# A simple implementation of the ensemble MCMC sampler proposed by Goodman &
-# Weare (2010). Given some function to compute the log of an (un-normalised)
-# M-dimensional posterior density function (PDF) this will produce <nsteps>
-# samples of M-dimensional vectors drawn from the PDF.
-# 
-# At input the array <theta> gives the current position of each walker. There
-# are <nwalkers> rows, one for each walker. Each row has M+2 columns. The first
-# 1:M columns are the position of each walker, an M-dimensional vector. On
-# output the position of each walker is updated. And the M+1 column is assigned
-# 0 (rejected) or 1 (accepted) depending on whether the walkers' position is
-# updated this cycle (accept/reject the proposed update position). The M+2
-# column contains the log(posterior density) at the walkers' current position
-# (after update).
-# 
-# Each walkers' position is updated in turn. The position of walker j is updated
-# by randomly selecting a subset of walkers from the ensemble (the complementary
-# sample). From the sample we effectively compute the covariance matrix, and use
-# this to define a multivariate Normal, with the mean as the current position of
-# walker j. We then propose a new position for walker j by drawing from this 
-# multivariate Normal.
-# 
-# In practice we randomly select M+1 walkers' positions (where M is the number
-# of variables, or dimensions of the problem), from the set of all walkers
-# excluding walker j. With M+1 positions we form a 'simplex'. (Although, by
-# setting the S parameter one can increase the size of the complementary sample
-# if desired, forming an S-polytope.) We then compute the mean position of the
-# complementary sample <x> and the displacements of each of its walkers from
-# this mean: delta_k = (x_k - <x>). We then produce M+1 univariate, Normal 
-# random numbers z_k and compute W = sum_k z_k * delta_k. So W is a random
-# displacement made from a weighted sum of the displacements (of each walker in
-# the complementary sample from their mean), with random weights. (See Goodman &
-# Weare eqn 11.)
-# 
-# This updated position for walker i is then accepted or rejected with a
-# probability that depends on the ratio of the posterior densities at the
-# current and the proposed new position. If the proposal is rejected, walker j
-# remains at its current position. Once every walker has been updated (j = 1, 2,
-# ..., nwalkers) we move to cycle i+1 and repeat the update step.
-# 
-# The random numbers (the size of the jump z and the uniform variate u used to
-# randomly choose accept/reject) are computed before the loop over walkers
-# begins. This is to make the code a little more clear and efficient.
-#
-# History:
-#  14/04/16 - First working version
-#
-# Simon Vaughan, University of Leicester
-# Copyright (C) 2016 Simon Vaughan
-# ------------------------------------------------
 
-walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
+walk.move <- function(posterior, theta, S = NULL, chatter = 0, ...) {
+
+  # walk - update an ensemble of 'walkers' using the 'walk move'
+  #
+  # Inputs: 
+  #   theta      - (array) nwalkers (rows) * M+2 (columns) current position 
+  #                   of each walker
+  #   S          - (integer) size of the complementary sample 
+  #   posterior  - (function) name of the log(posterior) function we are 
+  #                   sampling from
+  #   chatter    - (integer) high values give more runtime output
+  #   ...        - (anything else) any other arguments needed for the 
+  #                   posterior function
+  #
+  # Value:
+  #   theta     - (array) nwalkers (rows) * M+2 (columns) updated position 
+  #                 of each walker
+  #
+  # Description:
+  # A simple implementation of the 'walk move' for the ensemble MCMC sampler 
+  # proposed by Goodman & Weare (2010). 
+  # 
+  # At input the array <theta> gives the current position of each walker. There 
+  # are <nwalkers> rows, one for each walker. Each row has M+2 columns. The
+  # first 1:M columns are the position of each walker, an M-dimensional vector.
+  # On output the position of each walker is updated. And the M+1 column is
+  # assigned 0 (rejected) or 1 (accepted) depending on whether each walker's
+  # position is updated this cycle (accept/reject the proposed update position).
+  # The M+2 column contains the log(posterior density) at each walker's current
+  # position (after update).
+  # 
+  # Each walker's position is updated in turn. The position of walker j is
+  # updated by randomly selecting a subset of walkers from the ensemble (the
+  # complementary sample). From this sample we effectively compute the covariance
+  # matrix, and use this to define a multivariate Normal, with the mean as the
+  # current position of walker j. We then propose a new position for walker j by
+  # drawing from this multivariate Normal.
+  # 
+  # In practice we randomly select M+1 walkers' positions (where M is the number
+  # of variables, or dimensions of the problem), from the set of all walkers 
+  # excluding walker j. With M+1 positions we form a 'simplex'. (Although, by 
+  # setting the S parameter one can increase the size of the complementary
+  # sample if desired, forming an S-polytope.) We then compute the mean position
+  # of the complementary sample <x> and the displacements of each of its walkers
+  # from this mean: delta_k = (x_k - <x>). We then produce M+1 univariate,
+  # Normal random numbers z_k and compute W = sum_k z_k * delta_k. So W is a
+  # random displacement made from a weighted sum of the displacements (of each
+  # walker in the complementary sample from their mean), with random weights.
+  # (See Goodman & Weare eqn 11.)
+  # 
+  # This updated position for walker j is then accepted or rejected with a 
+  # probability that depends on the ratio of the posterior densities at the 
+  # current and the proposed new position. If the proposal is rejected, walker j
+  # remains at its current position. Once every walker has been updated (j = 1,
+  # 2, ..., nwalkers) we move to cycle i+1 and repeat the update step.
+  # 
+  # The random numbers (the size of the jump z and the uniform variate u used to
+  # randomly choose accept/reject) are computed before the loop over walkers 
+  # begins. This is to make the code a little more clear and efficient.
+  #
+  # History:
+  #  14/04/16 - First working version
+  #
+  # Simon Vaughan, University of Leicester
+  # Copyright (C) 2016 Simon Vaughan
   
   # number of walkers to treat
   nwalkers <- NROW(theta)
   
   # number of dimensions of each walker
-  M <- as.integer( NCOL(theta)-2 )
+  M <- as.integer( NCOL(theta) - 2 )
   
   # set the size of the complementary sample
   # should be M < S < nwalkers
@@ -485,14 +483,14 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
   # draw the random z values and u values
   # u are uniform values (0-1) and z are standard normal values
   # for each walker we need S values of z.
-  z <- array(rnorm(nwalkers * S), dim=c(nwalkers, S))
+  z <- array(rnorm(nwalkers * S), dim = c(nwalkers, S))
   u <- runif(nwalkers)
   
   # loop over each walker, updating its position
   for (j in 1:nwalkers) {
     
     # for walker j, randomly select a complementary sample of S walkers
-    s <- sample(walkers[-j], S, replace=FALSE)
+    s <- sample(walkers[-j], S, replace = FALSE)
     
     # current position of the jth walker
     X.pres <- theta[j, 1:M]
@@ -524,16 +522,7 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
     
     # proposed new position for the jth walker
     X.prop <- X.pres + W
-    
-    if (chatter > 10) {
-      cat('-- X.pres', X.pres, fill=TRUE)
-      cat('-- X.mean', X.mean, fill=TRUE)
-      cat('-- W', W, fill=TRUE)
-      cat('-- X.prop', X.prop, fill=TRUE)
-      cat('-- subsample', s, fill=TRUE)
-#      cat('-- stune', S, fill=TRUE)
-    }
-    
+
     # evalute the log PDF at the existing and proposed positions.
     # The value at the current position was evaluated in the previous
     # step, so we reuse this value. Only the value at the proposed new
@@ -557,7 +546,7 @@ walk.move <- function(posterior, theta, S=NULL, chatter=0, ...) {
   } # end of loop (j = 1, nwalkers)
 
   if (chatter > 5) {
-    cat('-- Walk move accept rate:', mean(theta[,M+1]))
+    cat('-- Walk move accept rate:', mean(theta[, M+1]))
   }
     
   # return the updated array 
