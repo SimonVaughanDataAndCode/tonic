@@ -1,14 +1,11 @@
 # ------------------------------------------------
 # metropolis.R
-# collection of R functions for using the random walk Metropolis-Hastings
+# R functions for using the random walk Metropolis-Hastings
 # algorithm for MCMC
 #
-# See e.g. Roberts (2015) http://arxiv.org/abs/1504.01896 
-# ------------------------------------------------
-# To do:
-#  Fix R.hat and plots to cope with 'flattened' output
+# 
 #
-
+# See e.g. Roberts (2015) http://arxiv.org/abs/1504.01896 
 # ------------------------------------------------
 
 mh.mcmc <- function(posterior, 
@@ -21,6 +18,7 @@ mh.mcmc <- function(posterior,
                    cov = NULL,
                    thin = NULL, 
                    merge.chains = TRUE,
+                   adapt = FALSE,
                    proposal = "normal", ...) {
 
   # A simple, pure R function to carry generate MCMC output
@@ -53,6 +51,57 @@ mh.mcmc <- function(posterior,
   #
   # NOTE: if merge.chains == FALSE then theta will be a 3D array
   #  with dimensions nchains * (nsteps/nchains) * M
+  #
+  # Generate samples from some 'target' density function specified by the
+  # 'posterior' function. Uses the random walk Metropolis-Hastings algorithm.
+  # The 'proposal' distribution is either a multivariate normal (default)
+  # or a Student's t distribution (with df=3). The latter has slightly fatter
+  # tails, so might be preferred for non-normal target densities.
+  #
+  # This function generates a total of <nsteps> samples after a
+  # 'burn in' period of <burn.in> steps. Allowing for a burn in period
+  # helps remove memory of the starting position (important if this is
+  # not well chosen). We run <nchains> in parallel, from slightly
+  # different starting positions. Each chain only needs to run for
+  # nsteps / nchain iterations (after the burn in is complete).
+  # Having multiple chains helps assess convergence: are they 'well mixed'
+  # meanng that samples from each walker appear to be drawn from the 
+  # same distribution? We can examine the moments and histograms of the
+  # chains to check this.
+  #
+  # The proposal density (normal or t) requires a covariance matrix. This is
+  # specified on input by the 'cov' argument. If not specified this will default
+  # to an identity matrix. Chosing a sensible covariance matrix for the proposal
+  # is part of the 'art' of MCMC. If the proposal is badly chosen - and nothing
+  # like the target density - then convergence (in distribution) will be very
+  # slow.
+  # 
+  # MCMC practitioners often aim for an acceptance rate of 0.1-0.5. If the 
+  # acceptance rate is very low it means there will be many repeats of the same 
+  # values before new ones are accepted, and so the random walk will explore the
+  # target density slowly. This is usually because the proposal density is too 
+  # large compared to the target density - try reducing the scale of the 
+  # covariance matrix. If the acceptance rate is very high (approaching 100%) 
+  # then probably the proposal distribution is too small, each new proposed 
+  # position is very close to the current position (and so of similar density 
+  # and highly likely to be accepted). Again, this means the random walk will 
+  # move only slowly through the target density. In this case, making the 
+  # covariance larger usually helps.
+  # 
+  # The target density function: The target density should is specified by the
+  # 'posterior' function. In fact, this function should compute the log density
+  # given parameters theta and any other arguments, i.e. log(p) =
+  # posterior(theta, ...) where the vector of parameters - theta - is the first
+  # argument of the posterior function. Where the density is zero or not
+  # defined, e.g. because prior = 0 for certain values of the parameters, it
+  # should return -Inf. Otherwise, the output of posterior(theta, ...) should be
+  # a real, scalar value.
+  #
+  # History:
+  #  14/07/16 - v0.1 - First working version
+  #
+  # Simon Vaughan, University of Leicester
+  # Copyright (C) 2016 Simon Vaughan
   
   # check the input arguments
   if (missing(theta.0)) stop('Must specify theta.0 start position.')
@@ -60,12 +109,12 @@ mh.mcmc <- function(posterior,
   if (!exists('posterior')) {
     stop('The specified log density function does not exist.')
   }
-  if (is.null(cov)) {
-    stop('Must specify the covariance matrix (cov).')
-  }
-  
+
   # dimensions of the PDF
   M <- length(theta.0)
+  
+  # default covariance matrix if none supplied
+  cov <- diag(M)
 
   # ensure the number of steps, walkers, etc. are integers  
   nsteps <- as.integer(nsteps)
@@ -91,14 +140,24 @@ mh.mcmc <- function(posterior,
 
   # starting locations of chains
   for (j in 1:nchains) {
-     z <- mvtnorm::rmvnorm(1, mean = theta.0, sigma = cov)
+     z <- mvtnorm::rmvnorm(1, mean = theta.0, sigma = cov/4)
      theta[1, j, 1:M] <- z  # randomized start position
      theta[1, j, M+1] <- 1  # accept
      theta[1, j, M+2] <- posterior(z, ...)
   }
 
+  # check that the density is positive at the starting positions
+  start.densities <- array(NA, dim = M)
+  for (j in 1:nchains) {
+    start.densities[j] <- posterior(theta[1, j, 1:M], ...)
+  }
+  if (!all(is.finite(start.densities))) {
+    stop('** Non-finite values of log posterior at initial values.')
+  }
+  
   # loop over the chain
   
+  i.count <- 1
   for (i in 2:ncycles) {
     
     # carry forward the previous theta value
@@ -142,19 +201,34 @@ mh.mcmc <- function(posterior,
     theta[i, mask, M+2] <- p.prop[mask]
 
     # progress report to user if requested
-    i.count <- 1
     if (chatter > 0) {
       if (i %% update == 0) {
         accept.rate <- mean( theta[i.count:i, , M+1], na.rm=TRUE ) 
-        cat("\r-- Cycle", i, "of", ncycles, ". Acceptance rate:", 
-            signif(accept.rate*100, 2), "%")
+        if (i <= nrows.burnin) {
+          cat("\r-- Burn in cycle", i, "of", nrows.burnin)
+        } else {
+          cat("\r-- Cycle", i-nrows.burnin, "of", ncycles-nrows.burnin)
+        }
+        cat(". Acceptance rate:", signif(accept.rate*100, 2), "%")
       }
       if (i == ncycles) cat('', fill=TRUE)
-      if (i == nrows.burnin) {
+      if (i >= nrows.burnin & i.count == 1) {
         cat(' - Finished burn-in', fill=TRUE)
         i.count <- nrows.burnin + 1
       }
     }
+    
+    # if adapt == TRUE then adjust the covariance matrix
+    # using the samples from the burn in period.
+    if (i == nrows.burnin) {
+      if (adapt == TRUE) {
+        theta.burn <- matrix(theta[1:nrows.burnin, , 1:M], 
+                             nrow = nchains * nrows.burnin, 
+                             ncol = M, byrow = FALSE)
+        cov <- cov(theta.burn)
+      }
+    }
+    
   } # end of loop over i = 2, ncycles
   
   # strip off the burn-in period and keep only nsteps 

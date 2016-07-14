@@ -60,7 +60,17 @@ gw.mcmc <- function(posterior,
   # Weare (2010). Given some function to compute the log of an (un-normalised) 
   # M-dimensional posterior density function (PDF) this will produce <nsteps> 
   # samples of M-dimensional vectors drawn from the PDF.
+  #
+  # The target density function:
+  # The target density should is specified by the 'posterior' function. In fact,
+  # this function should compute the log density given parameters theta and any
+  # other arguments, i.e. log(p) = posterior(theta, ...) where the vector of
+  # parameters - theta - is the first argument of the posterior function. Where
+  # the density is zero or not defined, e.g. because prior = 0 for certain
+  # values of the parameters, it should return -Inf. Otherwise, the output of
+  # posterior(theta, ...) should be a real, scalar value.
   # 
+  # The ensemble sampler:
   # It works by running a number <nwalkers> of 'walkers' through the
   # M-dimensional space. At initialisation, all walkers begin near some start
   # point (specified by theta.0) but have their positions randomised (using a
@@ -79,11 +89,12 @@ gw.mcmc <- function(posterior,
   # nrows = ceiling(nsteps/nwalkers) cycles after the burn-in period. Any extra
   # cycles can be discarded.
   # 
+  # Thinning the output:
   # The user has the option to 'thin' the output. This involves keeping only a 
   # subset of the full chain. If <thin> is equal to 5 then we keep only every
   # 5th cycle. This helps remove autocorrelation between successive cycles. But
-  # modern MCMC practice would advice against this as it throws away perfectly
-  # good samples.
+  # modern MCMC practice would advise against this as it throws away perfectly
+  # good (if autocorrelated) samples.
   # 
   # Once we have enough samples the output from all walkers is merged into a 
   # single nsteps (rows) * M (columns) array.
@@ -186,6 +197,7 @@ gw.mcmc <- function(posterior,
 
   # main loop over ncycles, each iteration updates all walkers 
   # the first (burn.in) steps are the 'burn-in' period
+  i.count <- 1
   for (i in 1:ncycles) {
     
     # should we to a "stretch" (default) or a "walk" move?
@@ -215,16 +227,19 @@ gw.mcmc <- function(posterior,
     theta[i, , ] <- theta.now         
     
     # progress report to user if requested
-      i.count <- 1
-      if (chatter > 0) {
+    if (chatter > 0) {
       if (i %% update == 0) {
-        accept.rate <- mean( theta[i.count:i, , M+1], na.rm = TRUE ) 
-        cat("\r-- Cycle", i, "of", ncycles, ". Acceptance rate:", 
-            signif(accept.rate*100, 2), "%")
+        accept.rate <- mean( theta[i.count:i, , M+1], na.rm=TRUE ) 
+        if (i <= nrows.burnin) {
+          cat("\r-- Burn in cycle", i, "of", nrows.burnin)
+        } else {
+          cat("\r-- Cycle", i-nrows.burnin, "of", ncycles-nrows.burnin)
+        }
+        cat(". Acceptance rate:", signif(accept.rate*100, 2), "%")
       }
-      if (i == ncycles) cat('', fill = TRUE)
-      if (i == nrows.burnin) {
-        cat(' - Finished burn-in', fill = TRUE)
+      if (i == ncycles) cat('', fill=TRUE)
+      if (i >= nrows.burnin & i.count == 1) {
+        cat(' - Finished burn-in', fill=TRUE)
         i.count <- nrows.burnin + 1
       }
     }
