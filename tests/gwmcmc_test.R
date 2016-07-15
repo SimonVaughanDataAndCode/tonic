@@ -5,32 +5,25 @@
 # separated in all 3 dimensions
 
 my.pdf <- function(theta) {
-  n <- 3
-  cov <- diag(n) * 0.05
-  P1 <- mvtnorm::dmvnorm(theta, mean=c(0,0,0), sigma=cov)
-  cov <- diag(n) * 0.05
-  P2 <- mvtnorm::dmvnorm(theta, mean=c(2,2,2), sigma=cov)
-  cov <- diag(n) * 0.05
-  P3 <- mvtnorm::dmvnorm(theta, mean=c(3,-2,3), sigma=cov)
-  logP <- log(0.5*P1 + 0.5*P2 + 0.5*P3)
+  cov <- matrix(c(1,0.98,0.8,
+                  0.98,1.0,0.97,
+                  0.8,0.97,2.0), nrow = 3)
+  logP <- mvtnorm::dmvnorm(theta, mean=c(-1,2,0), 
+                         sigma = cov, log = TRUE)
   return(logP)
 }
 
 # ------------------------------------------------
+# load the MCMC and plotting functions
+source("gwmcmc.R")
+source("plot_contour.R")
+source("diagnostics.R")
+
+# ------------------------------------------------
 # test
 
-theta <- gw.mcmc(my.pdf, theta.0=c(0,0,0), nsteps=10e4, cov.init = diag(3)*2,
-                  chatter=1, walk.rate=2) #, merge.walkers=FALSE)
+chain <- gw.mcmc(my.pdf, theta.0=c(0,0,0), nsteps=10e4, burn.in = 1e4)
 
-#plot(result[,1], -result[,2]-result[,1])
-#plot(theta[,1], theta[,2])
+mcmc.diag.plot(chain)
 
-x <- c(0,0,0)
-print(mean(sqrt((theta[,1]-x[1])^2+(theta[,2]-x[2])^2+(theta[,3]-x[3])^2) < 2))
-x <- c(2,2,2)
-print(mean(sqrt((theta[,1]-x[1])^2+(theta[,2]-x[2])^2+(theta[,3]-x[3])^2) < 2))
-x <- c(3,-2,3)
-print(mean(sqrt((theta[,1]-x[1])^2+(theta[,2]-x[2])^2+(theta[,3]-x[3])^2) < 2))
-
-#source('~/R/tonic/plot_contour.R')
-cont.pairs(theta, prob.levels=c(0.683, 0.9, 0.99), smooth1d=TRUE)
+cont.pairs(chain$theta, prob.levels=c(0.683, 0.9, 0.99), smooth1d=TRUE)

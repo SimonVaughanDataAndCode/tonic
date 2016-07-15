@@ -39,9 +39,16 @@ rosenbrock <- function(theta) {
                    chatter = 1, walk.rate = 5,
                    thin = 1)
   
-# plot the points
-  points(chain$theta[,1], chain$theta[,2], pch = 1, cex = 0.5)
+# use diagnostic plots
+  mcmc.diag.plot(chain)
 
+# plot the points
+  layout(1)
+  plot(chain$theta[,1], chain$theta[,2], bty = "n", 
+       pch = 1, cex = 0.5)
+
+  cont.pairs(chain$theta)
+  
 # ------------------------------------------------
 # use the plotting function from plot_contour.R
 
