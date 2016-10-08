@@ -5,8 +5,12 @@ Tonic is a collection of pure R tools for generating and manipulating MCMC outpu
 The current version includes:
 
  gw.mcmc    - sample a target density using the ensemble sampler of Goodman & Weare (2010)
+ 
+ mh.mcmc    - sample a target density using the random walk M-H method 
 
  cont.pairs - plot an NxN matrix summarising pairwise relationships between variables
+ 
+ mcmc.diag.plots - make diagnostic plots of chain outputs
 
 ## Installation
 
@@ -15,6 +19,8 @@ Tonic is not (yet) an R package. To set up the R functions source the .R files
 ```R
 source("gwmcmc.R")
 source("plot_contour.R")
+source("metropolis.R")
+source("diagnostics.R")
 ```
 
 ## Getting started
@@ -43,3 +49,12 @@ Use the .R scripts in the tests directory to check these work. Below is an examp
 ```
 
 ![example](figures/ContPairs_test.png)
+
+## To do
+
+* annealing? (with evidence calculation)
+* evidence from nested sampling?
+* periodic saving of output
+* configure input/output so that can pick-up chain(s) where left off.
+* add Laplace evidence function, MAP finder
+ 
