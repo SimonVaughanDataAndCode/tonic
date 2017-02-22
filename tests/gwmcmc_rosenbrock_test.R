@@ -7,11 +7,6 @@ rosenbrock <- function(theta) {
   return(logP)
 }
 
-# ------------------------------------------------
-# load the MCMC and plotting functions
-  source("gwmcmc.R")
-  source("plot_contour.R")
-  source("diagnostics.R")
 
 # ------------------------------------------------
 # plot contours of density
