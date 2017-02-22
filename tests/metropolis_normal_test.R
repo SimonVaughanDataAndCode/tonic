@@ -21,11 +21,9 @@ my.pdf <- function(theta) {
 chain <- mh.mcmc(my.pdf, theta.0=c(0,0,0), nsteps=2e4, cov = 15*diag(3),
                   chatter=1, burn.in = 1e4, adapt = TRUE)
 
-source("diagnostics.R")
 mcmc.conv(chain)
 
 # examine diagnostic plots
-source('~/R/tonic/plot_contour.R')
 mcmc.diag.plot(chain)
 
 # make matrix of 1D and 2D density plots
