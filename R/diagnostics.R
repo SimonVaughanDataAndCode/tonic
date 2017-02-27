@@ -2,36 +2,61 @@
 # diagnostics.R
 #
 # functions to help diagnose the output of MCMC routines.
+#
+# History:
+#  13/07/16 - First working version
+#  25/02/17 - save/restore graphical parms, added documentation
+#
+# Simon Vaughan, University of Leicester
+# Copyright (C) 2016 Simon Vaughan
 # -----------------------------------------
 
+#' Plots for assessing MCMC output.
+#' 
+#' \code{mcmc.diag.plot} Generate plots to help assess the convergence 
+#'                  of MCMC output.
+#'                  
+#' Generate plots of chain traces (variable values vs. iteration), 
+#' auto-correlation plots and 1D densities (histograms).
+#'
+#' @param chain (list) containing output data from an MCMC, including
+#' @param max.chains maximum no. chains to overlay on trace plot
+#'   
+#' @return none
+#' 
+#' @section Further details:
+#' The input \code{chain} should be a list such as produced by 
+#'   \code{gw.mcmc} or \code{mh.mcmc} that contains the following:
+#' \describe{ 
+#' \item{theta}{(array) n * ndim array of posterior samples
+#'             n samples of ndim vectors of parameters}
+#' \item{method}{(string) name of MCMC method used}
+#' \item{nwalkers}{number of walkers used (if method = 'gw.mcmc')}
+#' \item{nchains}{number of walkers used (if method = 'mh.mcmc')}
+#' }
+#' 
+#' @seealso \code{\link{gw.mcmc}}
+#' 
+#' @examples 
+#' my_posterior <- function(theta) {
+#'   cov <- matrix(c(1,0.98,0.8,0.98,1.0,0.97,0.8,0.97,2.0), nrow = 3)
+#'   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
+#'   return(logP)
+#' }
+#' chain <- gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+#' mcmc.diag.plot(chain)
+#'
+#' @export
 mcmc.diag.plot <- function(chain, max.chain = 20) {
-  
-  # mcmc.diag.plot - Generate output plots to help assess the convergence 
-  #                  of MCMC output.
-  # Inputs: 
-  #   chain  - (list) containing output data from an MCMC, including
-  #     theta  - (array) n * ndim array of posterior samples
-  #             n samples of ndim vectors of parameters
-  #     method - (string) name of MCMC method used
-  #     nwalkers - number of walkers used (if method = 'gw.mcmc')
-  #     nchains  - number of walkers used (if method = 'mh.mcmc')
-  #   max.chains - maximum no. chains to overlay on trace plot
-  #   
-  # Value
-  #   none
-  #
-  # Generate plots of chain traces (variable values vs. iteration)
-  # auto-correlation plots and 1D densities (histograms).
-  # History:
-  #  13/07/16 - First working version
-  #
-  # Simon Vaughan, University of Leicester
-  # Copyright (C) 2016 Simon Vaughan
   
   # check the input arguments
   if (missing(chain)) stop('Must specify chain input.')
   if (!"theta" %in% names(chain)) stop('** chain input list is missing theta.')
+
+  # store the current graphical parameters  
+  retire <- par(no.readonly = TRUE)
   
+  # now change the graphical parameters to make room for 3 panels
   m <- rbind(c(1, 1), c(2, 3))
   layout(m)
   par(mar = c(5, 5, 2, 1))
@@ -133,13 +158,30 @@ mcmc.diag.plot <- function(chain, max.chain = 20) {
     }
     
   }
+  
+  # restore graphical parameters
+  par(retire)
 }
 
 # ------------------------------------------------
-# for each parameter theta[1]...theta[M]
-# calculate the R.hat statistic (Gelman & Rubin 1992)
-# See also Gelman et al. (2004, sect 11.6)
 
+#' compute the Gelman & Rubin R.hat statistic.
+#' 
+#' \code{Rhat} computes the Gelman & Rubin R.hat statistic.
+#' 
+#' Given an array of \code{theta} values, for some parameter, produced by
+#' several chains, compute the R.hat statistic as a check for convergence. The
+#' \code{R.hat} statistic (Gelman & Rubin 1992) should be close to zero if the
+#' chains are converging. See also Gelman et al. (2004, sect 11.6)
+#' 
+#' @param theta (array) of samples of one parameters. \code{ncycles} rows by
+#' \code{nchains} columns. We compare the within-chain and between-chain
+#' variances.
+#' 
+#' @return
+#'  The R.hat statistic (scalar).
+#'
+#' @export
 Rhat <- function(theta) {
   
     L <- dim(theta)[1]
