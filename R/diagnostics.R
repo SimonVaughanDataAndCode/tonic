@@ -35,7 +35,7 @@
 #' \item{nchains}{number of walkers used (if method = 'mh.mcmc')}
 #' }
 #' 
-#' @seealso \code{\link{gw.mcmc}}
+#' @seealso \code{\link{gw.mcmc}}, \code{\link{mh.mcmc}}
 #' 
 #' @examples 
 #' my_posterior <- function(theta) {
@@ -168,7 +168,6 @@ mcmc.diag.plot <- function(chain, max.chain = 20) {
 #' compute the Gelman & Rubin R.hat statistic.
 #' 
 #' \code{Rhat} computes the Gelman & Rubin R.hat statistic.
-#' 
 #' Given an array of \code{theta} values, for some parameter, produced by
 #' several chains, compute the R.hat statistic as a check for convergence. The
 #' \code{R.hat} statistic (Gelman & Rubin 1992) should be close to zero if the
@@ -180,6 +179,8 @@ mcmc.diag.plot <- function(chain, max.chain = 20) {
 #' 
 #' @return
 #'  The R.hat statistic (scalar).
+#'  
+#' @seealso \code{\link{mcmc.conv}}
 #'
 #' @export
 Rhat <- function(theta) {
@@ -201,6 +202,22 @@ Rhat <- function(theta) {
 # for each parameter, and also a visual check of
 # the 80% regions for each parameter.
 
+#' Perform checks for convergence of multiple Markov chains. 
+#' 
+#' \code{mcmc.conv} checks convergence of multiple Markov chains.
+#' 
+#' Uses Gelman & Rubin's R.hat for each parameter, and also a visual check of 
+#' the 80\% regions for each parameter.
+#' 
+#' @param chain (array) of MCMC samples, \code{N} rows (sampled) by
+#' \code{M} columns (variables). 
+#' 
+#' @return
+#'  The values of R.hat for each of the \code{M} variables.
+#'  
+#' @seealso \code{\link{Rhat}}
+#'
+#' @export
 mcmc.conv <- function(chain) {
 
   # check the input arguments
@@ -281,6 +298,7 @@ mcmc.conv <- function(chain) {
       segments(ci.lo[i, j], x, ci.hi[i, j], x, col=j)
     }
   }
+  return(R.hat)
 }
 
 

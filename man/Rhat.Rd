@@ -16,10 +16,11 @@ The R.hat statistic (scalar).
 }
 \description{
 \code{Rhat} computes the Gelman & Rubin R.hat statistic.
-}
-\details{
 Given an array of \code{theta} values, for some parameter, produced by
 several chains, compute the R.hat statistic as a check for convergence. The
 \code{R.hat} statistic (Gelman & Rubin 1992) should be close to zero if the
 chains are converging. See also Gelman et al. (2004, sect 11.6)
+}
+\seealso{
+\code{\link{mcmc.conv}}
 }

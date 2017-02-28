@@ -45,5 +45,5 @@ mcmc.diag.plot(chain)
 
 }
 \seealso{
-\code{\link{gw.mcmc}}
+\code{\link{gw.mcmc}}, \code{\link{mh.mcmc}}
 }

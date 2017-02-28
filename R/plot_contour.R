@@ -8,48 +8,6 @@
 # --------------------------------------------------
 
 # --------------------------------------------------
-# NAME: 
-#     interp.image
-#
-# PURPOSE:
-#     Interpolate an even grid of z(x,y) onto arbitrary (x,y) points
-#
-# AUTHOR:
-#     Simon Vaughan
-#
-# CALLING SEQUENCE:
-#     z <- interp.image(img, x, y)
-#
-# INPUTS:
-#     img  = list containing three components: x, y, z
-#     x    = vector of x positions at which to compute z
-#     y    = vector of y positions at which to compute z
-#
-# OPTIONAL INPUTS:
-#     none
-#
-# OUTPUTS:
-#     z   = interpolated values of z(x,y)
-#
-# DETAILS:
-#
-#  From an image z(x,y) at evenly spaced grid points x = i*dx
-# y = j*dy, return the values of z at arbirary points (x,y)
-# between grid points. The values are calculated using
-# bilinear interpolation. I.e. for an output point (x,y)
-# the corners of the surrounding grid square are identified,
-# and the result is a weighted combination of these four z
-# values: z(x1,y1), z(x2,y1), z(x1,y2), z(x2.y2) where the
-# weights depend on the distances from the x and y boundaries
-# of the grid square.
-#
-# The input img should be a list with three components:
-#  img$z is a vector of nx evenly spaced x positions
-#  img$y is a vector of ny evenly spaced y position
-#  img$z is an nx*ny array of z values at the (x,y) coordinates.
-#
-# The output is a vector of z values at the position of each
-# input (x,y) coordinate.
 #
 # History:
 #  04/04/16 - First working version
@@ -59,7 +17,38 @@
 #
 # --------------------------------------------------
 
-interp.image <- function(image, x, y) {
+#' Interpolate an even grid of z(x,y) onto arbitrary (x,y) points
+#' 
+#' \code{interp_image} 
+#' 
+#' From an image \code{z(x,y)} at evenly spaced grid points \code{x = i*dx} 
+#' \code{y = j*dy}, return the values of \code{z} at arbirary points
+#' \code{(x, y)} between grid points. The values are calculated using bilinear
+#' interpolation. I.e. for an output point \code{(x, y)} the corners of the
+#' surrounding grid square are identified, and the result is a weighted
+#' combination of these four \code{z} values: \code{z(x1, y1)}, \code{z(x2, y1)},
+#' \code{z(x1, y2)}, \code{z(x2, y2)} where the weights depend on the distances
+#' from the \code{x} and \code{y} boundaries of the grid square.
+#' 
+#' @param img (list) containing three components: \code{x, y, z}
+#' @param x   (vector) \code{x} positions at which to compute \code{z}
+#' @param y   (vector) \code{y} positions at which to compute \code{z}
+#'
+#' @return
+#'  The output is a vector of \code{z} values at the position of each
+#'  input \code{(x, y)} coordinate.
+#'  
+#' @section Notes:
+#' The input \code{img} should be a list with three components:
+#'  \code{img$z} is a vector of \code{nx} evenly spaced \code{x} positions,
+#'  \code{img$y} is a vector of \code{ny} evenly spaced \code{y} position,
+#'  \code{img$z} is an \code{nx*ny} array of \code{z} values at the 
+#'  \code{(x,y)} coordinates.
+#'  
+#' @seealso \code{\link{mcmc.conv}}
+#'
+#' @export
+interp_image <- function(image, x, y) {
   
   # check the inputs
   
@@ -119,48 +108,7 @@ interp.image <- function(image, x, y) {
 }
 
 # --------------------------------------------------
-# NAME: 
-#     hist2d
-#
-# PURPOSE:
-#     Bin a set of (x,y) points into a 2D histogram
-#
-# AUTHOR:
-#     Simon Vaughan
-#
-# CALLING SEQUENCE:
-#     z <- hist2d(x, y)
-#
-# INPUTS:
-#     x      = vector of x positions 
-#     y      = vector of y positions 
-#
-# OPTIONAL INPUTS:
-#     npix   = number of bins on each axis (pixels = npix^2)
-#     lims   = 4 element vector for x,y limits of the histogram
-#
-# OUTPUTS:
-#     freq2d = list containing components x, y, z
-#
-# DETAILS:
-#
-#  From an set of (x,y) positions, compute a 2D histogram.
-# Count the number of input points falling within each pixel on
-# and evenly spaced grid points of pix.x = i*dx, pix.y = j*dy. 
-# return this values as z. 
-#
-# The input img should be a list with three components:
-#  img$z is a vector of npix evenly spaced x positions
-#  img$y is a vector of npix evenly spaced y position
-#  img$z is an npix*npix array of frequencies for each pixel
-#
-# EXAMPLE
-#   n <- 1000
-#   x <- rnorm(n)
-#   y <- x + rnorm(n)
-#   img <- hist2d(x, y, npix=11)
-#   image(img$x, img$y, log10(img$z))
-#   points(x,y)
+# hist2d
 #
 # History:
 #  04/04/16 - First working version
@@ -170,10 +118,45 @@ interp.image <- function(image, x, y) {
 #
 # --------------------------------------------------
 
+#' Bin a set of (x,y) points into a 2D histogram
+#' 
+#' \code{hist2d} produce a 2D histogram from \code{x, y} points.
+#' 
+#' From an set of \code{(x, y)} positions, compute a 2D histogram.
+#' Count the number of input points falling within each pixel on
+#' and evenly spaced grid points of \code{pix.x = i*dx}, \code{pix.y = j*dy}. 
+#' return this values as \code{z}. 
+#' 
+#' @param npix number of bins on each axis (pixels = \code{npix^2})
+#' @param lims Four-element vector for \code{x, y} limits of the histogram
+#' @param prob (logical) make the area under the histogram equal to 1?
+#' @inheritParams 
+#'
+#' @return
+#'  List containing components \code{x, y, z}.
+#'  
+#' @section Notes:
+#' The output \code{img} is a list with three components:
+#'  \code{z} is a vector of \code{nx} evenly spaced \code{x} positions,
+#'  \code{y} is a vector of \code{ny} evenly spaced \code{y} position,
+#'  \code{z} is an \code{nx*ny} array of \code{z} values at the 
+#'  \code{(x, y)} coordinates.
+#'  
+#' @seealso \code{\link{mcmc.conv}}
+#' 
+#' @examples 
+#' n <- 1000
+#' x <- rnorm(n)
+#' y <- x + rnorm(n)
+#' img <- hist2d(x, y, npix=11)
+#' image(img$x, img$y, log10(img$z))
+#' points(x,y)
+#'
+#' @export
 hist2d <- function(x, y, 
-                   npix=25, 
-                   lims=c(range(x), range(y)),
-                   prob=FALSE) {
+                   npix = 25, 
+                   lims = c(range(x), range(y)),
+                   prob = FALSE) {
   
   if (missing(x)) stop('Missing X input vector.')
   if (missing(y)) stop('Missing Y input vector.')
@@ -225,22 +208,6 @@ hist2d <- function(x, y,
   
 }
 
-# ------------------------------------------------
-# Function to compute the density levels at which
-# to draw contour lines in order to enclose a
-# fraction (PROB) of the mass. 
-#
-# The input img should be a list with three components:
-#  img$z is a vector of nx evenly spaced x positions
-#  img$y is a vector of ny evenly spaced y position
-#  img$z is an nx*ny array of z values at the (x,y) coordinates.
-#
-# The values img$z should be density values, i.e. allpositive and
-# the sum of img$z*dx*dy should be 1.
-#
-# The output is a vector of the density levels (one for 
-# each element of PROB). If prob = 0.95 then a contour
-# a clevels contains 95% of the mass.
 #
 # History:
 #  04/04/16 - First working version
@@ -250,7 +217,38 @@ hist2d <- function(x, y,
 #
 # ---------------------------------------
 
-get.levels2d <- function(img, prob=0.95) {
+#' Compute contours encircling specified masses.
+#' 
+#' \code{get_levels2d} returns density levels enclosing specified masses. 
+#' 
+#' Function to compute the density levels at which to draw contour lines in
+#' order to enclose a fraction \code{prob} of the mass.
+#' 
+#' @param prob (vector) probability masses at which to define levels.
+#' @inheritParams interp_image
+#'
+#' @return
+#'  Vector of the density levels (one for each element of \code{prob}). 
+#'  If \code{prob = 0.95} then a contour a level contains 95\% of the mass.
+#'  
+#' @section Notes:
+#' The input \code{img} should be a list with three components:
+#'  \code{img$z} is a vector of \code{nx} evenly spaced \code{x} positions,
+#'  \code{img$y} is a vector of \code{ny} evenly spaced \code{y} position,
+#'  \code{img$z} is an \code{nx*ny} array of \code{z} values at the 
+#'  \code{(x, y)} coordinates.
+#'  
+#' @seealso \code{\link{mcmc.conv}}
+#' 
+#' @examples
+#' n <- 1000
+#' x <- rnorm(n)
+#' y <- x + rnorm(n)
+#' img <- hist2d(x, y, npix=11)
+#' get_levels2d(img, prob = c(0.5, 0.9))
+#'
+#' @export
+get_levels2d <- function(img, prob=0.95) {
   
   # check the inputs
 
@@ -276,13 +274,6 @@ get.levels2d <- function(img, prob=0.95) {
 }
 
 # ------------------------------------------------
-# Function to compute the lower and upper limits of
-# intevals containing a fraction (PROB) of the mass 
-# of the points x. 
-# If x are input data points, we compute the lower
-# and upper quantiles. For for prob = 0.95 we find
-# the 0.025 and 0.975 quantiles, between which are
-# 95% of the data points. 
 #
 # History:
 #  04/04/16 - First working version
@@ -292,7 +283,33 @@ get.levels2d <- function(img, prob=0.95) {
 #
 # -------------------------------------------------
 
-get.levels1d <- function(x, prob=0.95) {
+#' Find lower, upper intervals enclosing certain masses of a histogram.
+#' 
+#' \code{get_levels1d} returns values bounding specified masses.
+#' 
+#' Function to compute the lower and upper limits of intevals containing a
+#' fraction (\code{prob}) of the mass of the points \code{x}. If \code{x} are
+#' input data points, we compute the lower and upper quantiles. For for
+#' \code{prob = 0.95} we find the 0.025 and 0.975 quantiles, between which are 
+#' 95\% of the data points.
+#' 
+#' @param x (vector) x data values.
+#' @inheritParams get_levels2d
+#'
+#' @return
+#'  Vector of the x values (two for each element of \code{prob}). 
+#'  If \code{prob = 0.95} then the lower, upper values enclose 95\% of the mass
+#'  of x.
+#'  
+#' @seealso \code{\link{mcmc.conv}}
+#' 
+#' @examples
+#' n <- 1000
+#' x <- rnorm(n)
+#' get_levels1d(x, prob = c(0.5, 0.9))
+#'
+#' @export
+get_levels1d <- function(x, prob = 0.95) {
 
   # check the inputs
   if (missing(x)) stop('Missing X input vector.')
@@ -315,23 +332,60 @@ get.levels1d <- function(x, prob=0.95) {
 # Copyright (C) 2016 Simon Vaughan
 # --------------------------------------------------
 
-plot.cont <- function(x, y, 
+#' Produce a 2D density/histogram plot given data values \code{x, y}.
+#' 
+#' \code{plot_density_contours} generates a 2D density/histogram plot.
+#' 
+#' Given vectors \code{x, y} specifying the coordinates of data points,
+#' \code{plot_density_contours} generates a 2D density plot. What is plotted are contours
+#' enclosing specified masses of the distribution, and points outside of the
+#' outermost contour are marked individually. The contours are based on
+#' either a smooth 2D kernel estimate or an a (rough) 2D histogram.
+#' 
+#' @param x,y (vectors) x and y data values (equal length vectors).
+#' @param xlim,ylim (vectors) The (x, y) limits of the axes (x1, x2), (y1, y2).
+#' @param plot.dots (logical) Plot points outside of outer contour?
+#' @param plot.contours (logical) Plot the contours?
+#' @param xlab,ylab (strings) Labels for x, y axes.
+#' @param pch (integer) Plotting 'character', i.e. symbol to use. Same as 
+#'         'base' graphics.
+#' @inheritParams contour_matrix
+#'
+#' @return
+#'  None.
+#'  
+#' @seealso \code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+#' 
+#' @examples
+#' n <- 1000
+#' x <- rnorm(n)
+#' y <- x + rnorm(n)
+#' img <- hist2d(x, y, npix = 40)
+#' plot_density_contours(x,y, xlim = c(-4,4), ylim = c(-4, 4))
+#' axis(1); axis(2)
+#'
+#' @export
+plot_density_contours <- function(x, y, 
                       xlim, ylim, 
-                      npix=25, 
-                      prob.levels=c(0.683,0.90),
-                      plot.dots=TRUE,
-                      plot.contours=TRUE,
-                      plot.image=FALSE,
-                      dot.level=NULL,
-                      jittr=FALSE,
-                      col="black",
-                      pch=1,
-                      cex=1.0, 
-                      smooth2d=TRUE, ...) {
+                      npix = 25, 
+                      prob.levels = c(0.683, 0.90),
+                      plot.dots = TRUE,
+                      plot.contours = TRUE,
+                      plot.image = FALSE,
+                      dot.level = NULL,
+                      jittr = FALSE,
+                      col = "black",
+                      pch = 1,
+                      cex = 1.0, 
+                      smooth2d = TRUE, 
+                      xlab = "",
+                      ylab = "",
+                      ...) {
   
   # set up the plot window
   
-  plot(1, 1, type="n", main="", axes=FALSE, xlim=xlim, ylim=ylim, ...)
+  plot(1, 1, type="n", main="", axes=FALSE, xlim=xlim, ylim=ylim,
+       xlab = xlab, ylab = ylab, ...)
   
   # compute the 2D smoothed density, and density levels at which 
   # to draw the contours. Make sure the (X,Y) range of the smoothed
@@ -346,7 +400,7 @@ plot.cont <- function(x, y,
     z <- hist2d(x, y, npix=npix, lims, prob=TRUE)
   }
   
-  clevels <- get.levels2d(z, prob=prob.levels)
+  clevels <- get_levels2d(z, prob=prob.levels)
   
   # add contours to the plot
   if (plot.image == TRUE) image(z$x, z$y, sqrt(z$z), add=TRUE, col=terrain.colors(20))
@@ -355,7 +409,7 @@ plot.cont <- function(x, y,
   # find the density at the position of each points
   
   if (plot.dots == TRUE) {
-    density.xy <- interp.image(z, x, y)
+    density.xy <- interp_image(z, x, y)
     
     # define the contour outside of which to draw individual points
     
@@ -383,7 +437,7 @@ plot.cont <- function(x, y,
 
 # --------------------------------------------------
 # NAME: 
-#     plot.dist
+#     plot_density
 #
 # PURPOSE:
 #     Produce a single histogram or density plot
@@ -392,7 +446,7 @@ plot.cont <- function(x, y,
 #     Simon Vaughan
 #
 # CALLING SEQUENCE:
-#     plot.dist(x)
+#     plot_density(x)
 #
 # INPUTS:
 #   x         - vector of values
@@ -418,7 +472,32 @@ plot.cont <- function(x, y,
 # Copyright (C) 2016 Simon Vaughan
 # --------------------------------------------------
 
-plot.dist <- function(x, 
+#' Produce a 1D density/histogram plot given data values \code{x}.
+#' 
+#' \code{plot_density} generates a 1D density/histogram plot.
+#' 
+#' Produce a single histogram or density plot, for use with \code{contour_matrix}.
+#' 
+#' @param x (vector) x data values.
+#' @param xlim (vector) The limits of the x axis (x1, x2).
+#' @param xlab,ylab (strings) Labels for x, y axes.
+#' @inheritParams contour_matrix
+#'
+#' @return
+#'  None.
+#'  
+#' @seealso \code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+#' 
+#' @examples
+#' n <- 1000
+#' x <- rnorm(n)
+#' y <- x + rnorm(n)
+#' img <- hist2d(x, y, npix = 40)
+#' plot_density(x, xlim = c(-4,4))
+#' axis(1)
+#'
+#' @export
+plot_density <- function(x, 
                       breaks = 30, 
                       xlim, 
                       prob = NULL, 
@@ -439,8 +518,8 @@ plot.dist <- function(x,
   
   ylim <- c(0, max(h$density))
   if (smooth == TRUE) ylim[2] <- max(s$y)
-  plot(0, 0, type="n", xlab=xlab, ylab=ylab, main=main, xaxt="n", yaxt="n", bty="n",
-       xlim=xlim, ylim=ylim, ...)
+  plot(0, 0, type = "n", xlab = xlab, ylab = ylab, main = main, xaxt = "n", 
+       yaxt = "n", bty = "n", xlim = xlim, ylim = ylim, ...)
   
   # plot histogram or density curve
 
@@ -448,7 +527,7 @@ plot.dist <- function(x,
   if (smooth == FALSE) {
     x.plot <- c(xlim[1], rep(h$breaks, each=2), xlim[2])
     y.plot <- c(0, 0, rep(h$density, each=2), 0, 0)
-    polygon(x.plot, y.plot, col=fill.col)
+    polygon(x.plot, y.plot, col = fill.col)
     lines(c(h$breaks[1], h$breaks[1:nbin], h$breaks[nbin+1]),
           c(0, h$density, 0), type="s", lwd=1)
   } else {
@@ -461,7 +540,7 @@ plot.dist <- function(x,
   
   if (!is.null(prob)) {
     nlevels <- length(prob)
-    clevels <- get.levels1d(x, prob=prob)
+    clevels <- get_levels1d(x, prob=prob)
     if (plot.lines == TRUE) {
       abline(v=mean(x), lty=1, lwd=2, col="grey80")
       abline(v = clevels, lty=2, lwd=2, col="grey80")
@@ -476,96 +555,6 @@ plot.dist <- function(x,
 }
 
 # --------------------------------------------------
-# NAME: 
-#     cont.pairs
-#
-# PURPOSE:
-#     Produce a matrix of contours plots from a data array
-#
-# AUTHOR:
-#     Simon Vaughan
-#
-# CALLING SEQUENCE:
-#     cont.pairs(dat)
-#
-# INPUTS:
-#   theta     - N*M array of parameter values
-#
-# OPTIONAL INPUTS:
-#   ranges      - [M,2] array of ranges for the plots
-#   cex         - expand size of points
-#   prob.levels - probability levels, e.g. to plot contours enclosing
-#                  90% and 95% of the mass on 2D distributions
-#   labels      - names of the variables
-#   upper       - plot also in upper-right triangle. Options are
-#                  NA - no plot 
-#                  points - scatter plot of points
-#                  image - intensity map 
-#                  contour - contour map
-#   dot.level   - draw dots outside of which contour? (1,2,...)
-#   breaks      - how many bins for 1D histograms
-#   smooth1d    - plot smoothed distributions rather than histograms
-#                  on diagonal TRUE/FALSE
-#   smooth2d    - use smooth (kernel density estimate) rather than 2D histograms
-#                  TRUE/FALSE
-#   npix        - use npix*npix grid of pixels for computing 2D smoothed 
-#                  distributions (resolution of contour maps)
-#   cex.lab     - expand axis labels
-#   cex.axis    - expand axis names
-#   prob1d      - probability levels at which to mark intervals on 
-#                  1D distributions
-#   sigma       - are probability levels given in terms of sigmas TRUE/FALSE
-#   jittr       - add 'jitter' to points to reduce overlap
-#   thin        - a factor by which to 'thin out' data input data
-#                  i.e plot only a fraction 1/thin of the data points.
-#   col         - colour of the data points
-#   plot.image  - Plot a colour image underneath the contours TRUE/FALSE
-#   plot.1dline - Mark intervals on 1D plots (histogram/density)
-#   fill.col    - colour to fill the histogram
-#   ...         - any other graphical keywords to be passed to plot(...)
-#
-# OUTPUTS:
-#     none
-#
-# DETAILS:
-#
-#  Given an array of data with M columns (variables) and 
-# N rows (observations), produce a matrix of plots showing
-# contours for each pair of parameters. The pairs() function
-# shows a matrix of scatter plots for each pair of variables,
-# here the scatter plots are replaced by contour plots.
-# The contours are produced by using kde2d to produce a 
-# 2D Gaussian kernal density estimate, and finding the 
-# contours that encolse a fraction (prob) of the total density.
-#
-# REQUIRES:
-#   get.levels2d  - find 2D levels enclosing prob*100% of the mass
-#   get.levels1d  - find 1D intervals from vector of points
-#   interp.image  - bilinear interpolation of the 2D density estimates
-#   hist2d        - make 2D histogram
-#   plot.dist     - plot 1D histogram/density (on diagonals)
-#   plot.cont     - plot 2D distribution as contours/image
-#
-# NOTES:
-#   You may notice that the fraction of points plotted outside the
-# dot.levels contour line is often smaller than prob.levels[dot.levels].
-# This is usually true for finite N and is a natural consequence of
-# plotting contours that enclose a fraction of the smoothed density 
-# rather than a fraction of the points.
-# 
-# EXAMPLE:
-#   n <- 10000
-#   x <- rchisq(n, df=2)
-#   y <- x + rnorm(n)
-#   z <- rnorm(n, sd=1)
-#   dat <- cbind(x,y,z)
-#   ranges <- c(0, -4, -4, 10, 10, 10)
-#   dim(ranges) <- c(3,2)
-# 
-#   cont.pairs(dat, prob.levels=c(1,2), cex=0.5, npix=100, sigma=TRUE,
-#               dot.level=2, prob1d=c(1, 2), smooth1d=TRUE,
-#               cex.lab=1.3, ranges=ranges)
-# 
 #
 # History:
 #  04/04/16 - First working version
@@ -574,37 +563,119 @@ plot.dist <- function(x,
 # Copyright (C) 2016 Simon Vaughan
 # --------------------------------------------------
 
-cont.pairs <- function(theta, 
+#' Produce a matrix of contours plots from a data array
+#' 
+#' \code{contour_matrix} generates an \code{M*M} matrix of scatter/density plots.
+#'                  
+#' Given an array of data with \code{M} columns (variables) and \code{N} rows 
+#' (observations), produce a matrix of plots showing contours for each pair of 
+#' parameters. The \code{pairs()} function shows a matrix of scatter plots for 
+#' each pair of variables, here the scatter plots are replaced by contour plots.
+#' The contours are produced by using \code{MASS:kde2d} to produce a 2D Gaussian
+#' kernal density estimate, and finding the contours that encolse a fraction
+#' (prob) of the total density.
+#'
+#' @param theta        (array) \code{N} by \code{M} array of parameter values
+#' @param ranges      (array) \code{M} by \code{2} array of ranges for the plots
+#' @param cex         (float) character expansion factor.
+#' @param prob.levels (float) probability levels, e.g. to plot contours enclosing
+#'                       90\% and 95\% of the mass on 2D distributions
+#' @param labels      (array of strings) names of the variables
+#' @param upper       (string) plot also in upper-right triangle. See notes.
+#' @param dot.level   (integer) draw dots outside of which contour? (1,2,...)
+#' @param breaks      (integer) how many bins for 1D histograms
+#' @param smooth1d    (logical) plot smoothed distributions, rather than 
+#'                     histograms on the leading diagonal?
+#' @param smooth2d    (logical) use smooth, kernel density estimates, rather 
+#'                      than 2D histograms?                       
+#' @param npix        (integer) use \code{npix*npix} grid of pixels for 
+#'                      computing 2D smoothed distributions (resolution of 
+#'                      contour maps)
+#' @param cex.lab     (float) expansion factor for axis labels.
+#' @param cex.axis    (float) expansion factor for axis names.
+#' @param prob1d      (float array) probability levels at which to mark 
+#'                      intervals on 1D distributions, e.g. c(0.683, 0.90).
+#' @param sigma       (logical) are probability levels \code{prob1d} and 
+#'                      \code{prob.levels} given in terms of sigmas?
+#'                      (If \code{FALSE} - the default - then these are 
+#'                      probabilities.)
+#' @param jittr       (logical) add 'jitter' to points to reduce overlap.
+#' @param thin        (integer) a factor by which to 'thin out' data input data
+#'                      i.e. plot only a fraction \code{1/thin} of the data 
+#'                      points.
+#' @param col         (string) colour of the data points.
+#' @param plot.image  (logical) Plot a colour image underneath the contours?
+#' @param plot.1dlines (logical) Mark intervals on 1D plots (histogram/density)?
+#' @param fill.col    (string) Colour to use under the histogram.
+#' @param ...         (anything) any other graphical keywords to be passed to 
+#'                        \code{plot(...)}
+#'   
+#' @return Array of the 1D intervals for each parameter, or NULL.
+#' 
+#' @section Notes:
+#' The input \code{chain} should be a list such as produced by 
+#'   \code{gw.mcmc} or \code{mh.mcmc} that contains the following:
+#' \describe{ 
+#' \item{theta}{(array) n * ndim array of posterior samples
+#'             n samples of ndim vectors of parameters}
+#' \item{method}{(string) name of MCMC method used}
+#' \item{nwalkers}{number of walkers used (if \code{method = 'gw.mcmc'})}
+#' \item{nchains}{number of walkers used (if \code{method = 'mh.mcmc'})}
+#' }
+#' 
+#' The \code{upper} parameter determines what is to be shown in the upper-right
+#' corner of the plot. The options are: \itemize{
+#'                      \item{\code{"NA"} - no plot} 
+#'                      \item{\code{"points"} - scatter plot of points}
+#'                      \item{\code{"image"} - intensity map} 
+#'                      \item{\code{"contour"} - contour map}
+#'                      }
+#'                      
+#' You may notice that the fraction of points plotted outside the 
+#' \code{dot.levels} contour line is often smaller than
+#' \code{prob.levels[dot.levels]}. This is usually true for finite \code{N} and
+#' is a natural consequence of plotting contours that enclose a fraction of the
+#' smoothed density rather than a fraction of the points.
+#' 
+#' @seealso \code{\link{gw.mcmc}}, \code{\link{mh.mcmc}},
+#' \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
+#' \code{\link{interp_image}}, \code{\link{hist2d}},
+#' \code{\link{plot_density}}, \code{\link{plot_density_contours}},
+#' 
+#' @examples 
+#' n <- 10000
+#' x <- rchisq(n, df=2)
+#' y <- x + rnorm(n)
+#' z <- rnorm(n, sd=1)
+#' dat <- cbind(x,y,z)
+#' contour_matrix(dat, smooth1d=TRUE)
+#' contour_matrix(dat, prob.levels=c(1,2), cex=0.5, npix=100, sigma=TRUE,
+#'           dot.level=2, prob1d=c(1, 2), smooth1d=TRUE, cex.lab=1.3,
+#'           plot.1dlines = TRUE)
+#'
+#' @export
+contour_matrix <- function(theta, 
                        ranges = NULL, 
-                       cex=1.0, 
-                       prob.levels=c(0.9, 0.95),
-                       labels=colnames(theta), 
-                       upper=NA, 
-                       dot.level=NULL,
-                       breaks=30, 
-                       smooth1d=FALSE, 
-                       smooth2d=TRUE,
-                       npix=100, 
-                       cex.lab=1, 
-                       cex.axis=1, 
+                       cex = 1.0, 
+                       prob.levels = c(0.9, 0.95),
+                       labels = colnames(theta), 
+                       upper = NA, 
+                       dot.level = NULL,
+                       breaks = 30, 
+                       smooth1d = FALSE, 
+                       smooth2d = TRUE,
+                       npix = 100, 
+                       cex.lab = 1, 
+                       cex.axis = 1, 
                        prob1d = NULL, 
                        sigma = FALSE, 
                        jittr=FALSE, 
                        thin = NULL, 
-                       pch=1,
-                       col="black", 
-                       plot.image=FALSE, 
-                       plot.1dlines = TRUE,
-                       fill.col="steelblue3", ...) {
-  
-  # check the other functions we need are available
-  
-  if (!exists("interp.image")) stop('Missing function interp.image()')
-  if (!exists("get.levels1d")) stop('Missing function get.levels1d()')
-  if (!exists("get.levels2d")) stop('Missing function get.levels2d()')
-  if (!exists("hist2d")) stop('Missing function hist2d()')
-  if (!exists("plot.cont")) stop('Missing function plot.cont()')
-  if (!exists("plot.dist")) stop('Missing function plot.dist()')
+                       pch = 1,
+                       col = "black", 
+                       plot.image = FALSE, 
+                       plot.1dlines = FALSE,
+                       fill.col = "steelblue3", ...) {
   
   # check the inputs
 
@@ -616,14 +687,17 @@ cont.pairs <- function(theta,
   n <- NROW(theta)
   
   if (M < 2) stop('** Only one column in your data array.')
-  if (n < 10) stop('Too few points in the input data array.')
+  if (n < 10) stop('** Too few points in the input data array.')
 
   # probability should be between 0 and 1  
   
   if (sigma == FALSE) {
-    if (max(prob.levels) > 1) stop('PROB.LEVELS > 1 error.')
-    if (min(prob.levels) < 0) stop('PROB.LEVELS < 0 error.')
+    if (max(prob.levels) > 1) stop('** PROB.LEVELS > 1 error.')
+    if (min(prob.levels) < 0) stop('** PROB.LEVELS < 0 error.')
   }
+  
+  # store the current graphical parameters  
+  retire <- par(no.readonly = TRUE)
   
   # if requested, 'thin' the input array
   if (!is.null(thin)) {
@@ -649,7 +723,7 @@ cont.pairs <- function(theta,
   }
   
   if (NCOL(ranges) != 2 | NROW(ranges) != M) {
-    cat('** RANGES not properly defined in cont.pairs', fill=TRUE)
+    cat('** RANGES not properly defined in contour_matrix', fill=TRUE)
   }
 
   # if sigma is specified on input, use sigma to (re)define the prob.levels
@@ -666,22 +740,17 @@ cont.pairs <- function(theta,
   
   levels1d <- NULL
    
-  # save the existing plotting parameters, 
-  # to be restored once finished
-  
-  par.mfrow <- par()$mfrow
-  par.mfcol <- par()$mfcol
-  par.mar <- par()$mar
-  par.oma <- par()$oma
-  par.mgp <- par()$mgp
-  
   # define a plotting array comprising M*M regions
   
   par(mfcol = c(M, M))
   
-  # leave some room around the edges of the plot
+  # define a plotting array comprising M*M regions, leave some room around 
+  # the edges of the plot
   
-  par(mar = c(0,0,0,0), oma = c(6,6,6,6), mgp = c(3,1,0))
+  par(mar = c(0,0,0,0), 
+      oma = c(6,6,6,6), 
+      mgp = c(3,1,0),
+      mfcol = c(M, M))
   
   # loop over an M*M square of parameter pairs theta_i, theta_j
   
@@ -700,7 +769,7 @@ cont.pairs <- function(theta,
  
       if (i < j) {
 
-        plot.cont(x, y, xlim, ylim, npix=25, prob.levels, 
+        plot_density_contours(x, y, xlim, ylim, npix=25, prob.levels, 
                   plot.image=plot.image,
                   dot.level=dot.level, jittr=jittr, 
                   col=col, cex=cex, pch=pch, ...)
@@ -730,7 +799,7 @@ cont.pairs <- function(theta,
       # give the name of the ith parameter
       
       if (j == i) {
-         levels1d.i <- plot.dist(x, breaks, xlim, 
+         levels1d.i <- plot_density(x, breaks, xlim, 
                                 prob=prob1d, smooth = smooth1d,
                                 fill.col = fill.col, plot.lines = plot.1dlines)
         
@@ -758,18 +827,18 @@ cont.pairs <- function(theta,
         # set up the plot window
         
         if (upper == "points") {
-          plot.cont(x, y, xlim, ylim, 
-                    plot.dots=TRUE, dot.level=0, plot.contour=FALSE, plot.image=FALSE,
+          plot_density_contours(x, y, xlim, ylim, 
+                    plot.dots=TRUE, dot.level=0, plot.contours=FALSE, plot.image=FALSE,
                     col=col, cex=cex, ...)
         }
         if (upper == "image") {
-          plot.cont(x, y, xlim, ylim, npix=npix,
-                    plot.dots=FALSE, dot.level=0, plot.contour=FALSE, plot.image=TRUE,
+          plot_density_contours(x, y, xlim, ylim, npix=npix,
+                    plot.dots=FALSE, dot.level=0, plot.contours=FALSE, plot.image=TRUE,
                     col=col, cex=cex, ...)
         }
         if (upper == "contour") {
-          plot.cont(x, y, xlim, ylim, prob.levels, npix=npix,
-                    plot.dots=FALSE, dot.level=0, plot.contour=TRUE, plot.image=FALSE,
+          plot_density_contours(x, y, xlim, ylim, prob.levels, npix=npix,
+                    plot.dots=FALSE, dot.level=0, plot.contours=TRUE, plot.image=FALSE,
                     col=col, cex=cex, ...)
         }
         
@@ -783,16 +852,18 @@ cont.pairs <- function(theta,
   
   # output the 1D intervals
   
+  theta.intervals <- NULL
   if (!is.null(levels1d)) {
     nlevels <- length(prob1d)
     rownames(levels1d) <- paste(labels)
     colnames(levels1d)[nlevels+1] <- "mean"
-    cat('-- 1D intervals --', fill=TRUE)
-    print(signif(levels1d,4))
+    theta.intervals <- signif(levels1d,4)
   }
   
-  # restore the graphics device parameters
+  # restore graphical parameters
+  par(retire)
   
-  par(mfcol=par.mfcol, mfrow=par.mfrow, oma=par.oma, mar=par.mar, mgp=par.mgp)
-  
+  # return the intervals
+  return(theta.intervals)
+
 }
