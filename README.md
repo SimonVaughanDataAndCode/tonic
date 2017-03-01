@@ -1,7 +1,7 @@
 # tonic
 
 Tonic is a collection of pure R tools for generating and manipulating MCMC output.
-It is also a nice [mixer](https://en.wikipedia.org/wiki/Tonic_water) ![tonic](figures/tonic.jpg)
+It is also a nice [mixer](https://en.wikipedia.org/wiki/Tonic_water) ![tonic](../figures/tonic.jpg)
 
 The current version includes the top-level functions:
 
