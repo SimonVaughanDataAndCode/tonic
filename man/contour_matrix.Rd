@@ -85,7 +85,7 @@ kernal density estimate, and finding the contours that encolse a fraction
 \section{Notes}{
 
 The input \code{chain} should be a list such as produced by 
-  \code{gw.mcmc} or \code{mh.mcmc} that contains the following:
+  \code{gw_sampler} or \code{mh_sampler} that contains the following:
 \describe{ 
 \item{theta}{(array) n * ndim array of posterior samples
             n samples of ndim vectors of parameters}
@@ -122,8 +122,5 @@ contour_matrix(dat, prob.levels=c(1,2), cex=0.5, npix=100, sigma=TRUE,
 
 }
 \seealso{
-\code{\link{gw.mcmc}}, \code{\link{mh.mcmc}},
-\code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
-\code{\link{interp_image}}, \code{\link{hist2d}},
-\code{\link{plot_density}}, \code{\link{plot_density_contours}},
+\code{\link{gw_sampler}}, \code{\link{mh_sampler}},
 }

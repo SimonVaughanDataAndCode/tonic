@@ -40,5 +40,5 @@ The input \code{img} should be a list with three components:
 }
 
 \seealso{
-\code{\link{mcmc.conv}}
+\code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 }

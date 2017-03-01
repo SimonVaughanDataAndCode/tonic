@@ -22,5 +22,5 @@ several chains, compute the R.hat statistic as a check for convergence. The
 chains are converging. See also Gelman et al. (2004, sect 11.6)
 }
 \seealso{
-\code{\link{mcmc.conv}}
+\code{\link{chain_convergence}}
 }

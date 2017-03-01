@@ -9,10 +9,10 @@
 # ------------------------------------------------
 
 # ---------------------------------------------------------
-# gw.mcmc
+# gw_sampler
 # History:
 #  04/04/16 - v0.1 - First working version
-#  14/04/16 - v0.2 - Added walk.move as an optional update step
+#  14/04/16 - v0.2 - Added walk_move as an optional update step
 #  28/04/16 - v0.3 - Added saetfy checks, fixed sqrt(S) error in 
 #                     walk move, reflow comments
 #  11/07/16 - v0.4 - Changed output to a list with additional information
@@ -24,7 +24,7 @@
 
 #' Goodman-Weare Markov Chain Monte Carlo sampler
 #' 
-#' \code{gw.mcmc} returns samples from an esemble MCMC sampler.
+#' \code{gw_sampler} returns posterior samples from an esemble MCMC sampler.
 #' 
 #' A simple implementation of the ensemble MCMC sampler proposed by Goodman & 
 #' Weare (2010). Given some function to compute the log of an (un-normalised) 
@@ -75,8 +75,8 @@
 #' positions randomised (using a multivariate normal distribution). The ensemble
 #' of walkers then updates each cycle. The updating is done by one of two 
 #' possible moves: the 'stretch move' (handled by the seperate function
-#' \code{stretch.move}) or the 'walk move' (handled by the seperate function
-#' \code{walk.move})
+#' \code{stretch_move}) or the 'walk move' (handled by the seperate function
+#' \code{walk_move})
 #' 
 #' Burn-in: There is an initial period (called the 'burn-in' period) of
 #' \code{burn.in} cycles that from the beginning of the chain that is discarded.
@@ -97,6 +97,8 @@
 #' 
 #' Once we have enough samples the output from all walkers is merged into a 
 #' single nsteps (rows) * M (columns) array.
+#'  
+#' @seealso \code{\link{chain_convergence}}, \code{\link{mh_sampler}}
 #' 
 #' @examples 
 #' my_posterior <- function(theta) {
@@ -104,10 +106,10 @@
 #'   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
 #'   return(logP)
 #' }
-#' chain <- gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+#' chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
 #'
 #' @export
-gw.mcmc <- function(posterior, 
+gw_sampler <- function(posterior, 
                     theta.0, 
                     nsteps = 1E4,
                     nwalkers = 100,
@@ -222,10 +224,10 @@ gw.mcmc <- function(posterior,
     # update the walkers' position to step i using their positions
     # at step i-1
     if (do.walk == TRUE) {
-      theta.now <- walk.move(posterior, theta.now, 
+      theta.now <- walk_move(posterior, theta.now, 
                              chatter = chatter, stune, ...)  
     } else {
-      theta.now <- stretch.move(posterior, theta.now, 
+      theta.now <- stretch_move(posterior, theta.now, 
                                 chatter = chatter, atune, ...)  
     }
     
@@ -307,7 +309,7 @@ gw.mcmc <- function(posterior,
   return(list(theta = theta,
               func = deparse(substitute(posterior)),
               lpost = lpost,
-              method = "gw.mcmc",
+              method = "gw_sampler",
               nwalkers = nwalkers))
 }
 
@@ -323,7 +325,7 @@ gw.mcmc <- function(posterior,
 
 #' Update an ensemble of 'walkers' using the 'stretch move'
 #' 
-#' \code{stretch.move} updates an ensemble of 'walkers' using the 'stretch move'.
+#' \code{stretch_move} updates an ensemble of 'walkers' using the 'stretch move'.
 #' 
 #' A simple implementation of the 'strectch move' for the ensemble MCMC 
 #' sampler proposed by Goodman & Weare (2010).  
@@ -332,7 +334,7 @@ gw.mcmc <- function(posterior,
 #' @param  theta  (array) nwalkers (rows) * M+2 (columns) 
 #'                 the current position of each walker
 #' @param a (float) set the scale size of the random jumps 
-#' @inheritParams gw.mcmc
+#' @inheritParams gw_sampler
 #'
 #' @return
 #' An array containing the updated positions (in M-dimensional space) of each
@@ -365,10 +367,10 @@ gw.mcmc <- function(posterior,
 #' randomly choose accept/reject) are computed before the loop over walkers 
 #' begins. This is to make the code a little more clear and efficient.
 #' 
-#' @seealso \code{\link{gw.mcmc}}, \code{\link{walk.move}}
+#' @seealso \code{\link{gw_sampler}}, \code{\link{walk_move}}
 #' 
 #' @export
-stretch.move <- function(posterior, theta, a = 2, chatter = 0, ...) {
+stretch_move <- function(posterior, theta, a = 2, chatter = 0, ...) {
   
   # number of walkers to treat
   nwalkers <- NROW(theta)
@@ -441,14 +443,14 @@ stretch.move <- function(posterior, theta, a = 2, chatter = 0, ...) {
 
 #' Update an ensemble of 'walkers' using the 'walk move'
 #' 
-#' \code{walk.move} updates an ensemble of 'walkers' using the 'walk move'
+#' \code{walk_move} updates an ensemble of 'walkers' using the 'walk move'
 #' 
 #' A simple implementation of the 'walk move' for the ensemble MCMC sampler 
 #' proposed by Goodman & Weare (2010). 
 #' 
 #' @param S (integer) size of the complementary sample 
-#' @inheritParams gw.mcmc
-#' @inheritParams stretch.move
+#' @inheritParams gw_sampler
+#' @inheritParams stretch_move
 #'
 #' @return
 #' An array containing the updated positions (in M-dimensional space) of each
@@ -498,10 +500,10 @@ stretch.move <- function(posterior, theta, a = 2, chatter = 0, ...) {
 #' over walkers begins. This is to make the code a little more clear and
 #' efficient.
 #' 
-#' @seealso \code{\link{gw.mcmc}}, \code{\link{stretch.move}}
+#' @seealso \code{\link{gw_sampler}}, \code{\link{stretch_move}}
 #' 
 #' @export
-walk.move <- function(posterior, theta, S = NULL, chatter = 0, ...) {
+walk_move <- function(posterior, theta, S = NULL, chatter = 0, ...) {
 
   # number of walkers to treat
   nwalkers <- NROW(theta)
@@ -584,7 +586,7 @@ walk.move <- function(posterior, theta, S = NULL, chatter = 0, ...) {
     
   } # end of loop (j = 1, nwalkers)
 
-  if (chatter > 5) {
+  if (chatter > 1) {
     cat('-- Walk move accept rate:', mean(theta[, M+1]))
   }
     

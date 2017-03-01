@@ -45,7 +45,7 @@
 #'  \code{img$z} is an \code{nx*ny} array of \code{z} values at the 
 #'  \code{(x,y)} coordinates.
 #'  
-#' @seealso \code{\link{mcmc.conv}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #'
 #' @export
 interp_image <- function(image, x, y) {
@@ -130,7 +130,7 @@ interp_image <- function(image, x, y) {
 #' @param npix number of bins on each axis (pixels = \code{npix^2})
 #' @param lims Four-element vector for \code{x, y} limits of the histogram
 #' @param prob (logical) make the area under the histogram equal to 1?
-#' @inheritParams 
+#' @inheritParams contour_matrix
 #'
 #' @return
 #'  List containing components \code{x, y, z}.
@@ -142,7 +142,7 @@ interp_image <- function(image, x, y) {
 #'  \code{z} is an \code{nx*ny} array of \code{z} values at the 
 #'  \code{(x, y)} coordinates.
 #'  
-#' @seealso \code{\link{mcmc.conv}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #' 
 #' @examples 
 #' n <- 1000
@@ -238,7 +238,7 @@ hist2d <- function(x, y,
 #'  \code{img$z} is an \code{nx*ny} array of \code{z} values at the 
 #'  \code{(x, y)} coordinates.
 #'  
-#' @seealso \code{\link{mcmc.conv}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #' 
 #' @examples
 #' n <- 1000
@@ -301,7 +301,7 @@ get_levels2d <- function(img, prob=0.95) {
 #'  If \code{prob = 0.95} then the lower, upper values enclose 95\% of the mass
 #'  of x.
 #'  
-#' @seealso \code{\link{mcmc.conv}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #' 
 #' @examples
 #' n <- 1000
@@ -354,7 +354,7 @@ get_levels1d <- function(x, prob = 0.95) {
 #' @return
 #'  None.
 #'  
-#' @seealso \code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #' 
 #' @examples
 #' n <- 1000
@@ -486,7 +486,7 @@ plot_density_contours <- function(x, y,
 #' @return
 #'  None.
 #'  
-#' @seealso \code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+#' @seealso \code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 #' 
 #' @examples
 #' n <- 1000
@@ -614,7 +614,7 @@ plot_density <- function(x,
 #' 
 #' @section Notes:
 #' The input \code{chain} should be a list such as produced by 
-#'   \code{gw.mcmc} or \code{mh.mcmc} that contains the following:
+#'   \code{gw_sampler} or \code{mh_sampler} that contains the following:
 #' \describe{ 
 #' \item{theta}{(array) n * ndim array of posterior samples
 #'             n samples of ndim vectors of parameters}
@@ -637,10 +637,10 @@ plot_density <- function(x,
 #' is a natural consequence of plotting contours that enclose a fraction of the
 #' smoothed density rather than a fraction of the points.
 #' 
-#' @seealso \code{\link{gw.mcmc}}, \code{\link{mh.mcmc}},
-#' \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
-#' \code{\link{interp_image}}, \code{\link{hist2d}},
-#' \code{\link{plot_density}}, \code{\link{plot_density_contours}},
+#' @seealso \code{\link{gw_sampler}}, \code{\link{mh_sampler}}, 
+#   \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
+#   \code{\link{interp_image}}, \code{\link{hist2d}}, 
+#   \code{\link{plot_density}}, \code{\link{plot_density_contours}}
 #' 
 #' @examples 
 #' n <- 10000

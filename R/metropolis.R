@@ -3,12 +3,91 @@
 # R functions for using the random walk Metropolis-Hastings
 # algorithm for MCMC
 #
-# 
+# History:
+#  14/07/16 - v0.1 - First working version
 #
+# Simon Vaughan, University of Leicester
+# Copyright (C) 2016 Simon Vaughan
+# 
 # See e.g. Roberts (2015) http://arxiv.org/abs/1504.01896 
 # ------------------------------------------------
 
-mh.mcmc <- function(posterior, 
+
+#' Random Walk Metropolis-Hastings sampler using multiple chains.
+#' 
+#' \code{mh_sampler} returns posterior samples from a RW-MH sampler.
+#' 
+#' A simple, pure R function to carry generate MCMC output using the random walk
+#' Metropolis-Hastings algorithm. Uses a Normal or t distribution for the
+#' proposal.
+#' 
+#' @param nchains (integer) number of distinct 'chains' to run.
+#' @param adapt (logical) if \code{TRUE} then adjust the covariance matrix using the 
+#'              samples from the burn in period.
+#' @param cov (array/matrix) covariance matrix for proposal distribution.
+#' @param proposal (string) Use "normal" proposal, or else "t" distribution.
+#' @param merge.chains (logical) combine output from all chains into one
+#' @inheritParams gw_sampler
+#' 
+#' @return
+#'  A list with components
+#'   \item{theta}{(array) \code{nsteps} samples from M-dimensional posterior [nsteps rows, M columns]}
+#'   \item{func}{(string) name of posterior function sampled}
+#'   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
+#'   \item{method}{(string) sampling method used ("mh_sampler")}
+#'   \item{nchains}{number of chains used}
+#' If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
+#' dimensions \code{nchains * (nsteps/nchains) * M}.
+#' 
+#' @section Notes:
+#' Generate samples from some 'target' density function specified by the 
+#' \code{posterior} function. Uses the random walk Metropolis-Hastings
+#' algorithm. The 'proposal' distribution is either a multivariate normal
+#' (default) or a Student's t distribution (with \code{df=3}). The latter has
+#' slightly fatter tails, so might be preferred for non-normal target densities.
+#' 
+#' This function generates a total of \code{nsteps} samples after a 'burn in'
+#' period of \code{burn.in} steps. Allowing for a burn in period helps remove
+#' memory of the starting position (important if this is not well chosen). We
+#' run \code{nchains} in parallel, from slightly different starting positions.
+#' Each chain only needs to run for \code{nsteps / nchain} iterations (after the
+#' burn in is complete). Having multiple chains helps assess convergence: are
+#' they 'well mixed' meanng that samples from each walker appear to be drawn
+#' from the same distribution? We can examine the moments and histograms of the 
+#' chains to check this.
+#' 
+#' The proposal density (\code{normal} or \code{t}) requires a covariance
+#' matrix. This is specified on input by the \code{cov} argument. If not
+#' specified this will default to an identity matrix. Chosing a sensible
+#' covariance matrix for the proposal is part of the 'art' of MCMC. If the
+#' proposal is badly chosen - and nothing like the target density - then
+#' convergence (in distribution) will be very slow.
+#' 
+#' MCMC practitioners often aim for an acceptance rate of 0.1-0.5. If the 
+#' acceptance rate is very low it means there will be many repeats of the same 
+#' values before new ones are accepted, and so the random walk will explore the 
+#' target density slowly. This is usually because the proposal density is too 
+#' large compared to the target density - try reducing the scale of the 
+#' covariance matrix. If the acceptance rate is very high (approaching 100\%) 
+#' then probably the proposal distribution is too small, each new proposed 
+#' position is very close to the current position (and so of similar density and
+#' highly likely to be accepted). Again, this means the random walk will move
+#' only slowly through the target density. In this case, making the covariance
+#' larger usually helps.
+#' 
+#' The target density function: The target density should is specified by the 
+#' \code{posterior} function. In fact, this function should compute the log
+#' density given parameters theta and any other arguments, i.e. log(p) = 
+#' \code{posterior(theta, ...)} where the vector of parameters \code{theta} is
+#' the first argument of the posterior function. Where the density is zero or
+#' not defined, e.g. because prior = 0 for certain values of the parameters, it 
+#' should return \code{-Inf}. Otherwise, the output of \code{posterior(theta,
+#' ...)} should be a real, scalar value.
+#'  
+#' @seealso \code{\link{chain_convergence}}, \code{\link{gw_sampler}}
+#'
+#' @export
+mh_sampler <- function(posterior, 
                    theta.0, 
                    nsteps = 1E4,
                    nchains = 5,
@@ -21,88 +100,7 @@ mh.mcmc <- function(posterior,
                    adapt = FALSE,
                    proposal = "normal", ...) {
 
-  # A simple, pure R function to carry generate MCMC output
-  # using the random walk Metropolis-Hastings algorithm.
-  # Uses a Normal or t distribution for the proposal. 
-  #
-  # Input:
-  #  posterior - name of log density funtion to sample from
-  #  theta.0   - vector of starting parameter values
-  #  nsteps     - (integer) total number of samples required
-  #  nchains   - (integer) number of 'chains' to run 
-  #  burn.in    - (integer) the 'burn-in' period for the chains
-  #  update     - (integer) print a progress update after <update> steps
-  #  chatter    - (integer) how verbose is the output? 
-  #                   (0 = quiet, 1 = normal, >1 = verbose)
-  #  thin       - (integer) keep only every <thin> sample
-  #   merge.chains - TRUE/FALSE combine output from all chains into one 2D array?
-  #  cov       - covariance matrix for proposal dist.
-  #  proposl   - Use "normal" proposal, or else "t" distribution
-  #
-  # Value:
-  #  A list with components
-  #   theta     - (array) <nsteps> samples from M-dimensional posterior 
-  #                 [nsteps rows, M columns]
-  #   func      - (string) name of posterior function sampled
-  #   lpost     - (vector) nsteps values of the LogPosterior density at each 
-  #                 sample position 
-  #   method    - sampling method uses (=gwmcmc)
-  #   Nchains  - number of chains used
-  #
-  # NOTE: if merge.chains == FALSE then theta will be a 3D array
-  #  with dimensions nchains * (nsteps/nchains) * M
-  #
-  # Generate samples from some 'target' density function specified by the
-  # 'posterior' function. Uses the random walk Metropolis-Hastings algorithm.
-  # The 'proposal' distribution is either a multivariate normal (default)
-  # or a Student's t distribution (with df=3). The latter has slightly fatter
-  # tails, so might be preferred for non-normal target densities.
-  #
-  # This function generates a total of <nsteps> samples after a
-  # 'burn in' period of <burn.in> steps. Allowing for a burn in period
-  # helps remove memory of the starting position (important if this is
-  # not well chosen). We run <nchains> in parallel, from slightly
-  # different starting positions. Each chain only needs to run for
-  # nsteps / nchain iterations (after the burn in is complete).
-  # Having multiple chains helps assess convergence: are they 'well mixed'
-  # meanng that samples from each walker appear to be drawn from the 
-  # same distribution? We can examine the moments and histograms of the
-  # chains to check this.
-  #
-  # The proposal density (normal or t) requires a covariance matrix. This is
-  # specified on input by the 'cov' argument. If not specified this will default
-  # to an identity matrix. Chosing a sensible covariance matrix for the proposal
-  # is part of the 'art' of MCMC. If the proposal is badly chosen - and nothing
-  # like the target density - then convergence (in distribution) will be very
-  # slow.
-  # 
-  # MCMC practitioners often aim for an acceptance rate of 0.1-0.5. If the 
-  # acceptance rate is very low it means there will be many repeats of the same 
-  # values before new ones are accepted, and so the random walk will explore the
-  # target density slowly. This is usually because the proposal density is too 
-  # large compared to the target density - try reducing the scale of the 
-  # covariance matrix. If the acceptance rate is very high (approaching 100%) 
-  # then probably the proposal distribution is too small, each new proposed 
-  # position is very close to the current position (and so of similar density 
-  # and highly likely to be accepted). Again, this means the random walk will 
-  # move only slowly through the target density. In this case, making the 
-  # covariance larger usually helps.
-  # 
-  # The target density function: The target density should is specified by the
-  # 'posterior' function. In fact, this function should compute the log density
-  # given parameters theta and any other arguments, i.e. log(p) =
-  # posterior(theta, ...) where the vector of parameters - theta - is the first
-  # argument of the posterior function. Where the density is zero or not
-  # defined, e.g. because prior = 0 for certain values of the parameters, it
-  # should return -Inf. Otherwise, the output of posterior(theta, ...) should be
-  # a real, scalar value.
-  #
-  # History:
-  #  14/07/16 - v0.1 - First working version
-  #
-  # Simon Vaughan, University of Leicester
-  # Copyright (C) 2016 Simon Vaughan
-  
+   
   # check the input arguments
   if (missing(theta.0)) stop('Must specify theta.0 start position.')
   if (missing(posterior)) stop('Must specify name of posterior function')
@@ -273,7 +271,7 @@ mh.mcmc <- function(posterior,
   return(list(theta = theta,
               func = deparse(substitute(posterior)),
               lpost = lpost,
-              method = "mh.mcmc",
+              method = "mh_sampler",
               nchains = nchains))
 }
 

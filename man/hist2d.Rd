@@ -44,5 +44,5 @@ points(x,y)
 
 }
 \seealso{
-\code{\link{mcmc.conv}}
+\code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 }

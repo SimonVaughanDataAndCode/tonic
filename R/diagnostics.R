@@ -13,7 +13,7 @@
 
 #' Plots for assessing MCMC output.
 #' 
-#' \code{mcmc.diag.plot} Generate plots to help assess the convergence 
+#' \code{chain_diagnosis} Generate plots to help assess the convergence 
 #'                  of MCMC output.
 #'                  
 #' Generate plots of chain traces (variable values vs. iteration), 
@@ -26,16 +26,16 @@
 #' 
 #' @section Further details:
 #' The input \code{chain} should be a list such as produced by 
-#'   \code{gw.mcmc} or \code{mh.mcmc} that contains the following:
+#'   \code{gw.mcmc} or \code{mh_sampler} that contains the following:
 #' \describe{ 
 #' \item{theta}{(array) n * ndim array of posterior samples
 #'             n samples of ndim vectors of parameters}
 #' \item{method}{(string) name of MCMC method used}
 #' \item{nwalkers}{number of walkers used (if method = 'gw.mcmc')}
-#' \item{nchains}{number of walkers used (if method = 'mh.mcmc')}
+#' \item{nchains}{number of walkers used (if method = 'mh_sampler')}
 #' }
 #' 
-#' @seealso \code{\link{gw.mcmc}}, \code{\link{mh.mcmc}}
+#' @seealso \code{\link{gw_sampler}}, \code{\link{mh_sampler}}
 #' 
 #' @examples 
 #' my_posterior <- function(theta) {
@@ -44,10 +44,10 @@
 #'   return(logP)
 #' }
 #' chain <- gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
-#' mcmc.diag.plot(chain)
+#' chain_diagnosis(chain)
 #'
 #' @export
-mcmc.diag.plot <- function(chain, max.chain = 20) {
+chain_diagnosis <- function(chain, max.chain = 20) {
   
   # check the input arguments
   if (missing(chain)) stop('Must specify chain input.')
@@ -72,7 +72,7 @@ mcmc.diag.plot <- function(chain, max.chain = 20) {
   if (chain$method == 'gw.mcmc') {
     nchains <- chain$nwalkers
   } 
-  if (chain$method == 'mh.mcmc') {
+  if (chain$method == 'mh_sampler') {
     nchains <- chain$nchains
   } 
   
@@ -180,7 +180,7 @@ mcmc.diag.plot <- function(chain, max.chain = 20) {
 #' @return
 #'  The R.hat statistic (scalar).
 #'  
-#' @seealso \code{\link{mcmc.conv}}
+#' @seealso \code{\link{chain_convergence}}
 #'
 #' @export
 Rhat <- function(theta) {
@@ -204,7 +204,7 @@ Rhat <- function(theta) {
 
 #' Perform checks for convergence of multiple Markov chains. 
 #' 
-#' \code{mcmc.conv} checks convergence of multiple Markov chains.
+#' \code{chain_convergence} checks convergence of multiple Markov chains.
 #' 
 #' Uses Gelman & Rubin's R.hat for each parameter, and also a visual check of 
 #' the 80\% regions for each parameter.
@@ -218,7 +218,7 @@ Rhat <- function(theta) {
 #' @seealso \code{\link{Rhat}}
 #'
 #' @export
-mcmc.conv <- function(chain) {
+chain_convergence <- function(chain) {
 
   # check the input arguments
   if (missing(chain)) stop('Must specify chain input.')
@@ -235,7 +235,7 @@ mcmc.conv <- function(chain) {
   if (chain$method == 'gw.mcmc') {
     nchains <- chain$nwalkers
   } 
-  if (chain$method == 'mh.mcmc') {
+  if (chain$method == 'mh_sampler') {
     nchains <- chain$nchains
   } 
   

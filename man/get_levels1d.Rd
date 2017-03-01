@@ -33,5 +33,5 @@ get_levels1d(x, prob = c(0.5, 0.9))
 
 }
 \seealso{
-\code{\link{mcmc.conv}}
+\code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 }

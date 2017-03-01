@@ -69,5 +69,5 @@ axis(1); axis(2)
 
 }
 \seealso{
-\code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+\code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 }

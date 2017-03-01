@@ -41,5 +41,5 @@ axis(1)
 
 }
 \seealso{
-\code{\link{mcmc.conv}}, \code{\link{contour_matrix}},
+\code{\link{chain_convergence}}, \code{\link{contour_matrix}}
 }
