@@ -1,14 +1,15 @@
-# tonic ![tonic](/figures/tonic.jpeg)
+# tonic 
 
 Tonic is a collection of pure R tools for generating and manipulating MCMC output.
-It is also a nice [mixer](https://en.wikipedia.org/wiki/Tonic_water) 
+It is also a nice [mixer](https://en.wikipedia.org/wiki/Tonic_water). 
+![tonic](/figures/tonic.jpeg)
 
 The current version includes the top-level functions:
 
- * gw.mcmc    - sample a target density using the ensemble sampler of Goodman & Weare (2010)
- * mh.mcmc    - sample a target density using the random walk M-H method 
- * contour_matrix - plot an NxN matrix summarising pairwise relationships between variables
- * mcmc.diag.plots - make diagnostic plots of chain outputs
+ * gw_sampler        - sample a target density using the ensemble sampler of Goodman & Weare (2010)
+ * mh_sampler        - sample a target density using the random walk M-H method 
+ * contour_matrix    - plot an NxN matrix summarising pairwise relationships between variables
+ * chain_convergence - make diagnostic plots of chain outputs
 
 ## Installation
 
