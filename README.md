@@ -1,6 +1,7 @@
 # tonic
 
-Tonic is a collection of pure R tools for generating and manipulating MCMC output. 
+Tonic is a collection of pure R tools for generating and manipulating MCMC output.
+It is also a nice [mixer](https://en.wikipedia.org/wiki/Tonic_water) ![tonic](figures\tonic.jpg)
 
 The current version includes the top-level functions:
 
@@ -19,11 +20,11 @@ Now you can install tonic straight from GitHub:
 ```
    devtools::install_github("svdataman/tonic")
 ```
-It will also install the mvtnorm package which it depends on. Now you're good to go.
+It will also install the [mvtnorm](https://cran.r-project.org/web/packages/mvtnorm/index.html) package which it depends on. Now you're good to go.
 
 ## Getting started
 
-Let's define an R function that takes a vector of parameters as its first argument, and returns a (scalar) log density (up to some normalisation constant)
+Let's define a psterior to sample. Tis should be an R function that takes a vector of parameters as its first argument, and returns a (scalar) log density (up to some normalisation constant). Here we'll use a multivariate normal as a simple example.
 
 ```R
 my_posterior <- function(theta) {
@@ -32,25 +33,28 @@ my_posterior <- function(theta) {
   return(logP)
 }
 ```
-Now we can generate a sample using e.g.
-
+Now we can generate a sample from this posterior using e.g.
 ```R
    chain <- tonic::gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
+The output is list (chain) containing, among other things, an array (theta) with
+$10^4$ samples.
 
-and plot the result using
-
+Note: there is a `burn in' period (of 2000, by default). This means the first 
+few iterations are thrown away (not returned). We can visualise the multivariable output of this using the contour_matrix function.
 ```R
   tonic::contour_matrix(chain$theta)
 ```
+The [i,j] panel shows the theta[,i] variable plotted against th theta[,j] variable. 
+Here we plot density contours, and points for data beyond the outermost contour. 
+Along the diagonal ([i,i] panels) we show the density or histogram of variable theta[,i].
 
 For more help on each comment, try the in-built help, e.g.
 ```R
    ?gw.mcmc
    ?contour_matrix
 ```
-
-Below is an example for a four-variable problem.
+Below is an example plot for a five-variable problem.
 
 ![example](figures/ContPairs_test.png)
 
