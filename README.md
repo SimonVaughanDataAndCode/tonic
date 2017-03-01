@@ -34,15 +34,20 @@ Let's define a psterior to sample. Tis should be an R function that takes a vect
     return(logP)
   }
 ```
-Now we can generate a sample from this posterior using e.g.
+Now we can generate a sample from this posterior using the Goodman-Weare algorithm as follows.
 ```R
-   chain <- tonic::gw_.mcmc_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
+   chain <- tonic::gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 The output is list (chain) containing, among other things, an array (theta) with
 $10^4$ samples.
 
 Note: there is a `burn in' period (of 2000, by default). This means the first 
 few iterations are thrown away (not returned). 
+
+Or use the random walk Metropolis-Hastings algorithm:
+```R
+   chain <- tonic::mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
+```
 
 ## Visualising
 
