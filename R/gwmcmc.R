@@ -106,7 +106,8 @@
 #'   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
 #'   return(logP)
 #' }
-#' chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+#' chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), 
+#'                     nsteps = 10e4, burn.in = 1e4) 
 #'
 #' @export
 gw_sampler <- function(posterior, 

@@ -85,6 +85,14 @@
 #' ...)} should be a real, scalar value.
 #'  
 #' @seealso \code{\link{chain_convergence}}, \code{\link{gw_sampler}}
+#' 
+#' @examples
+#' my_posterior <- function(theta) {
+#'   cov <- matrix(c(1,0.98,0.8,0.98,1.0,0.97,0.8,0.97,2.0), nrow = 3)
+#'   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
+#'   return(logP)
+#' }
+#' chain <- mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
 #'
 #' @export
 mh_sampler <- function(posterior, 
@@ -93,7 +101,7 @@ mh_sampler <- function(posterior,
                    nchains = 5,
                    burn.in = 10,
                    update = 5,
-                   chatter = 1,
+                   chatter = 0,
                    cov = NULL,
                    thin = NULL, 
                    merge.chains = TRUE,

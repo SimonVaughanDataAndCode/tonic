@@ -493,7 +493,7 @@ plot_density_contours <- function(x, y,
 #' x <- rnorm(n)
 #' y <- x + rnorm(n)
 #' img <- hist2d(x, y, npix = 40)
-#' plot_density(x, xlim = c(-4,4))
+#' junk <- plot_density(x, xlim = c(-4,4))
 #' axis(1)
 #'
 #' @export

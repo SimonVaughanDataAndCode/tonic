@@ -22,26 +22,30 @@ Now you can install tonic straight from GitHub:
 ```
 It will also install the [mvtnorm](https://cran.r-project.org/web/packages/mvtnorm/index.html) package which it depends on. Now you're good to go.
 
-## Getting started
+## Sampling
 
 Let's define a psterior to sample. Tis should be an R function that takes a vector of parameters as its first argument, and returns a (scalar) log density (up to some normalisation constant). Here we'll use a multivariate normal as a simple example.
 
 ```R
-my_posterior <- function(theta) {
-  cov <- matrix(c(1,0.98,0.8,0.98,1.0,0.97,0.8,0.97,2.0), nrow = 3)
-  logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
-  return(logP)
-}
+  my_posterior <- function(theta) {
+    cov <- matrix(c(1,0.98,0.8,0.98,1.0,0.97,0.8,0.97,2.0), nrow = 3)
+    logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
+    return(logP)
+  }
 ```
 Now we can generate a sample from this posterior using e.g.
 ```R
-   chain <- tonic::gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
+   chain <- tonic::gw_.mcmc_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 The output is list (chain) containing, among other things, an array (theta) with
 $10^4$ samples.
 
 Note: there is a `burn in' period (of 2000, by default). This means the first 
-few iterations are thrown away (not returned). We can visualise the multivariable output of this using the contour_matrix function.
+few iterations are thrown away (not returned). 
+
+## Visualising
+
+We can visualise the multivariable output of this using the contour_matrix function.
 ```R
   tonic::contour_matrix(chain$theta)
 ```
@@ -49,14 +53,21 @@ The [i,j] panel shows the theta[,i] variable plotted against th theta[,j] variab
 Here we plot density contours, and points for data beyond the outermost contour. 
 Along the diagonal ([i,i] panels) we show the density or histogram of variable theta[,i].
 
-For more help on each comment, try the in-built help, e.g.
-```R
-   ?gw.mcmc
-   ?contour_matrix
-```
+This is an extension of the plot (Fig. 2) used in [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V).
+
 Below is an example plot for a five-variable problem.
 
 ![example](figures/ContPairs_test.png)
+
+## Help
+
+For more help on each comment, try the in-built help, e.g.
+```R
+   ?gw_sampler
+   ?mh_sampler
+   ?contour_matrix
+   ?chain_convergence
+```
 
 ## To do
 
