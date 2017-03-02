@@ -33,7 +33,7 @@ Here we'll use a multivariate normal as a simple example.
 
 ```R
   my_posterior <- function(theta) {
-    cov <- matrix(c(1,0.98,0.8,0.98,1.0,0.97,0.8,0.97,2.0), nrow = 3)
+    cov <- matrix(c(1,0.98,0.8, 0.98,1.0,0.97, 0.8,0.97,2.0), nrow = 3)
     logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
     return(logP)
   }
@@ -87,8 +87,8 @@ chain (mh), the ACFs and the distributions.
 ```R
   tonic::chain_diagnosis(chain)
 ```
-
 Here is an example using output from gw_sampler().
+
 ![example](figures/diagnostic.png)
 
 Here we see the chains seem to be long enough (ACF decays to zero, trace plots
@@ -97,16 +97,20 @@ is shown, see the built-in help.
 
 The output can also be assessed using the chain_convergence() function
 ```R
-   chain_convergence(chain)
+   tonic::chain_convergence(chain)
 ```
 This plots, for each variable, the [Gelman-Rubin R.hat statistic](https://projecteuclid.org/euclid.ss/1177011136) along with a comparison of the 80\% intervals from each chain. (The MH method runs with
 nchains independent chains, the GW method runs with nwalkers walkers.)
-If the chains are `well mixed' R.hat should be close to 1.0 (ideally <1.1) and the intervals for each chain should share a lot of overlap. Note that this is more useful for the output of the MH method. (The GW method works best a large ensemble of walkers - nwalkers >= 50 - but requires fewer iterations of the full ensemble, so the inter-walker comparisons are less useful.)
+If the chains are `well mixed' R.hat should be close to 1.0 (ideally <1.1) and the intervals for each chain should share a lot of overlap. 
+
+Note that this is more useful for the output of the MH method. (The GW method works best with a large ensemble of walkers - nwalkers >= 50 - but requires fewer iterations of the full ensemble, so the inter-walker comparisons are less useful.)
 
 ### Further diagnostics (coda)
 
-The [coda](https://cran.r-project.org/web/packages/coda/index.html) package provides more diagnostic functions that may be used. E.g.
+The [coda](https://cran.r-project.org/web/packages/coda/index.html) package provides more diagnostic functions that may be used. (If you don't have coda you will need to use install.packages("coda").)
+E.g.
 ```R
+   require(coda)
    summary(mcmc(chain$theta))
    effectiveSize(mcmc(chain$theta))
 ```
