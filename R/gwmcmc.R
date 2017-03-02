@@ -35,7 +35,7 @@
 #' @param  theta.0    (vector) initial values of the M variables
 #' @param  nsteps     (integer) total number of samples required
 #' @param  nwalkers   (integer) number of 'walkers' (default: 100; should be > M)
-#' @param  burn.in    (integer) the 'burn-in' period for the walkers
+#' @param  burn.in    (integer) the 'burn-in' period for the ensemble.
 #' @param  update     (integer) print a progress update after \code{update} steps
 #' @param  chatter    (integer) how verbose is the output? 
 #'                    (0=quiet, 1=normal, 2=verbose)
@@ -80,10 +80,12 @@
 #' \code{walk_move})
 #' 
 #' Burn-in: There is an initial period (called the 'burn-in' period) of
-#' \code{burn.in} cycles that from the beginning of the chain that is discarded.
+#' \code{burn.in} steps that from the beginning of the chain that is discarded.
 #' This is to help remove memory of the start positions. After a few cycles the
 #' ensemble should have found regions of high posterior density even if started
-#' from a region of low density.
+#' from a region of low density. We recommend a minimum of \code{burn.in = 
+#' 100*nwalkers} to give the ensemble a chance to move into and cover 
+#' the high density region(s).
 #' 
 #' The chain is then run until there are at least \code{nsteps} total samples.
 #' Each cycle produces \code{nwalkers} samples (one from each walker). So we run
@@ -115,7 +117,7 @@ gw_sampler <- function(posterior,
                     theta.0, 
                     nsteps = 1E4,
                     nwalkers = 100,
-                    burn.in = 1000,
+                    burn.in = 1E4,
                     update = 5,
                     chatter = 0,
                     thin = NULL,

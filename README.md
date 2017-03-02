@@ -64,9 +64,19 @@ independent chains (default: nchains = 5).
 * There is a `burn in' period (default: burn.in = 1000). This means the first few iterations are thrown away (not returned). 
 * For a list of other parameters (optional), see the built-in help.
 
+## Visualising output
+
+We can visualise the multivariate samples using the contour_matrix() function.
+```R
+  tonic::contour_matrix(chain$theta, prob.levels = c(0.9, 0.99), smooth1d = TRUE)
+```
+The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i]. For more on how to customise the plot, see the built-in help.s
+
+![example](figures/matrix.png)
+
 ## Assessing output
 
-It is a good idea to check the output. First, check the average acceptance rate:
+It is a good idea to check the output before taking too seriously any inferences based on the posterior sample. First, check the average acceptance rate:
 ```R
    print(chain$accept.rate)
 ```
@@ -85,16 +95,34 @@ Here we see the chains seem to be long enough (ACF decays to zero, trace plots
 show no outlying walkers or trend in the mean, ...). For more details of what
 is shown, see the built-in help.
 
-## Visualising
-
-We can visualise the multivariate samples using the contour_matrix() function.
+The output can also be assessed using the chain_convergence() function
 ```R
-  tonic::contour_matrix(chain$theta, prob.levels = c(0.9, 0.99), smooth1d = TRUE)
+   chain_convergence(chain)
 ```
-The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i]. For more on how to customise the plot, see the built-in help.s
+This plots, for each variable, the [Gelman-Rubin R.hat statistic](https://projecteuclid.org/euclid.ss/1177011136) along with a comparison of the 80\% intervals from each chain. (The MH method runs with
+nchains independent chains, the GW method runs with nwalkers walkers.)
+If the chains are `well mixed' R.hat should be close to 1.0 (ideally <1.1) and the intervals for each chain should share a lot of overlap. Note that this is more useful for the output of the MH method. (The GW method works best a large ensemble of walkers - nwalkers >= 50 - but requires fewer iterations of the full ensemble, so the inter-walker comparisons are less useful.)
 
-![example](figures/matrix.png)
+### Further diagnostics (coda)
 
+The [coda](https://cran.r-project.org/web/packages/coda/index.html) package provides more diagnostic functions that may be used. E.g.
+```R
+   summary(mcmc(chain$theta))
+   effectiveSize(mcmc(chain$theta))
+```
+The latter estimates the effective sample size (for each variable), i.e the sample size adjusted for the autocorrelation timescale. (The mcmc() function converts the theta array into an mcmc object ready for coda functions.)
+
+### When problems occur
+
+Getting well-behaved MCMC output can be tricky. If the chains are not well-mixed, you might want to:
+* check the posterior (and prior) are well-defined.
+* use a longer burn-in period (burn.in).
+* use a different start position (theta.0).
+* provide a better choice of covariance matrix (parameter: cov) for the MH method, and/or adjust this after burn-in (adjust = TRUE).
+* use a t-distribution for the proposal (MH: method = "t").
+* use more walkers or chains (GW method: nwalkers; MH method: nchains).
+* adjust the details of the update move in the GW method (parameters: walk.rate, atune, stune).
+* let the chains run for longer (nsteps).
 ## Help
 
 For more help on each function, try the in-built help, e.g.

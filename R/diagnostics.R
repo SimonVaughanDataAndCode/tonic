@@ -231,6 +231,9 @@ chain_convergence <- function(chain) {
   if (missing(chain)) stop('Must specify chain input.')
   if (!"theta" %in% names(chain)) stop('** chain input list is missing theta.')
   
+  # store the current graphical parameters  
+  retire <- par(no.readonly = TRUE)
+  
   # total length of chains
   n <- length(chain$theta[,1])
   
@@ -239,7 +242,7 @@ chain_convergence <- function(chain) {
   
   nchains <- 1
   # no. walkers if using ensemble method
-  if (chain$method == 'gw.mcmc') {
+  if (chain$method == 'gw_sampler') {
     nchains <- chain$nwalkers
   } 
   if (chain$method == 'mh_sampler') {
@@ -305,6 +308,10 @@ chain_convergence <- function(chain) {
       segments(ci.lo[i, j], x, ci.hi[i, j], x, col=j)
     }
   }
+  
+  # restore graphical parameters
+  par(retire)
+  
   return(R.hat)
 }
 
