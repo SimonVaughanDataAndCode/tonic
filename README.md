@@ -47,20 +47,20 @@ The output is list (chain) containing, among other things, an array (theta) with
 * You must specify the name of the posterior function and the
 initial values for parameters (theta.0). 
 * You may change the number of walkers (default: nwalkers = 100).
+* There is a `burn in' period (default: burn.in = 2000). This means the first few iterations are thrown away (not returned). 
 * For a list of other parameters (optional), see the built-in help.
-
-Note: there is a `burn in' period (of 2,000 samples, by default). This means the first few iterations are thrown away (not returned). 
 
 Or use the random walk Metropolis-Hastings algorithm:
 ```R
    chain <- tonic::mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
-In this case the acceptance rate (see below) is rather low. We can improve this
-by 
-* manually specifying a more suitable covariance matrix (set cov parameter equal to a valid covariance matrix).
-* adapting the proposal distribution based on the samples from the `burn in' period (set adapt = TRUE).
-By default we produce the nsteps samples by merging the output from nchains
+In this case the acceptance rate (see below) is rather low. 
+* You may manually specify a more suitable covariance matrix (set the cov parameter equal to a valid covariance matrix).
+* You may 'adapt' the proposal distribution based on the samples from the 'burn in' period (adapt = TRUE).
+* By default we produce the nsteps samples by merging the output from nchains
 independent chains (default: nchains = 5).
+* There is a `burn in' period (default: burn.in = 1000). This means the first few iterations are thrown away (not returned). 
+* For a list of other parameters (optional), see the built-in help.
 
 ## Assessing output
 
@@ -68,10 +68,9 @@ It is a good idea to check the output. First, check the average acceptance rate:
 ```R
    print(chain$accept.rate)
 ```
-
 One usually aims for a value in the range 0.1-0.8.
 
-Now check the behaviour of the chains. The chain_diagnosis() function plots, for each parameter of the posterior, the traces of each walker (gw) or
+Now, check the behaviour of the chains. The chain_diagnosis() function plots, for each parameter of the posterior, the traces of each walker (gw) or
 chain (mh), the ACFs and the distributions. 
 ```R
   tonic::chain_diagnosis(chain)
@@ -89,7 +88,7 @@ We can visualise the multivariate samples using the contour_matrix() function.
 ```R
   tonic::contour_matrix(chain$theta, prob.levels = c(0.9, 0.99), smooth1d = TRUE)
 ```
-The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i].
+The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i]. For more on how to customise the plot, see the built-in help.s
 
 This is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
 
