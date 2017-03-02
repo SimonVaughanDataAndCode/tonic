@@ -25,7 +25,7 @@ It will also install the [mvtnorm](https://cran.r-project.org/web/packages/mvtno
 
 ## Sampling
 
-Let's define a posterior to sample. Tis should be an R function that 
+Let's define a posterior to sample. This should be an R function that 
 * takes a vector of parameters as its first argument,
 * returns a (scalar) log density (up to some normalisation constant,
 * return -Inf where the posterior is zero (e.g. because prior is zero).
@@ -53,7 +53,9 @@ Or use the random walk Metropolis-Hastings algorithm:
    chain <- tonic::mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 In this case the acceptance rate (see below) is rather low. We can improve this
-by adapting the proposal distribution based on the samples from the `burn in' period (set adapt = TRUE).
+by 
+* manually specifying a more suitable covariance matrix (set cov parameter equal to a valid covariance matrix).
+* adapting the proposal distribution based on the samples from the `burn in' period (set adapt = TRUE).
 
 ## Assessing output
 
