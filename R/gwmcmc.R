@@ -255,7 +255,7 @@ gw_sampler <- function(posterior,
       }
       if (i == ncycles) cat('', fill=TRUE)
       if (i >= nrows.burnin & i.count == 1) {
-        cat(' - Finished burn-in', fill=TRUE)
+        cat(' - Finished burn-in ', fill=TRUE)
         i.count <- nrows.burnin + 1
       }
     }

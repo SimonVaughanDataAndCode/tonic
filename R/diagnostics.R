@@ -21,6 +21,7 @@
 #'
 #' @param chain (list) containing output data from an MCMC, including
 #' @param max.chains maximum no. chains to overlay on trace plot
+#' @inheritParams gw_sampler
 #'   
 #' @return none
 #' 
@@ -47,7 +48,7 @@
 #' chain_diagnosis(chain)
 #'
 #' @export
-chain_diagnosis <- function(chain, max.chain = 20) {
+chain_diagnosis <- function(chain, max.chain = 20, chatter = 0) {
   
   # check the input arguments
   if (missing(chain)) stop('Must specify chain input.')
@@ -69,7 +70,7 @@ chain_diagnosis <- function(chain, max.chain = 20) {
   
   nchains <- 1
   # no. walkers if using ensemble method
-  if (chain$method == 'gw.mcmc') {
+  if (chain$method == 'gw_sampler') {
     nchains <- chain$nwalkers
   } 
   if (chain$method == 'mh_sampler') {
@@ -99,6 +100,12 @@ chain_diagnosis <- function(chain, max.chain = 20) {
   }
   
   t <- 1:ncycles
+  
+  if (chatter > 1) {
+    cat('-- ncycles: ', ncycles, fill = TRUE)
+    cat('-- nchains: ', nchains, fill = TRUE)
+    cat('-- ndim: ', ndim, fill = TRUE)
+  }
   
   for (i in 1:ndim) {
     
@@ -137,8 +144,8 @@ chain_diagnosis <- function(chain, max.chain = 20) {
     lag.j <- acf.i$lag
     acf.mean <- acf(x.mean, lag.max = lag.max, plot = FALSE)
     
-    plot(lag.j, acf.j, type = "l", bty = "n", ylim=c(-1,1), main = "ACF", 
-         xlab = "lag", ylab = "ACF")
+    plot(lag.j, acf.j, type = "l", bty = "n", ylim = c(-1, 1), main = "ACF", 
+         xlab = "lag", ylab = "ACF", lwd = 3, col = "steelblue")
     abline(h = 0, lty=2)
     lines(lag.j, acf.mean$acf, lwd=3)
     

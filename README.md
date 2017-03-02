@@ -49,6 +49,21 @@ Or use the random walk Metropolis-Hastings algorithm:
    chain <- tonic::mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 
+## Assessing output
+
+It is a good idea to check the output. The chain_diagnosis() function plots, 
+for each parameter of the posterior, the traces of each walker (gw) or
+chain (mh), the ACFs and the distributions.
+
+```R
+  tonic::chain_diagnosis(chain)
+```
+
+![example](figures/diagnosis.png)
+
+Here we see the chains seem to be long enough (ACF decays to zero, trace plots
+show no outlying walkers, ...)
+
 ## Visualising
 
 We can visualise the multivariable output of this using the contour_matrix function.
@@ -63,7 +78,7 @@ This is an extension of the plot (Fig. 2) used in [Vaughan 2010, MNRAS, v402, pp
 
 Below is an example plot for a five-variable problem.
 
-![example](figures/ContPairs_test.png)
+![example](figures/matrix.png)
 
 ## Help
 
