@@ -43,8 +43,11 @@ Now we can generate a sample from this posterior using the Goodman-Weare algorit
    chain <- tonic::gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 The output is list (chain) containing, among other things, an array (theta) with
-10,000 samples. You must specify the name of the posterior function and the
-initial values for parameters (theta.0). For a list of other parameters (optional), see the built-in help.
+10,000 samples. 
+* You must specify the name of the posterior function and the
+initial values for parameters (theta.0). 
+* You may change the number of walkers (default: nwalkers = 100).
+* For a list of other parameters (optional), see the built-in help.
 
 Note: there is a `burn in' period (of 2,000 samples, by default). This means the first few iterations are thrown away (not returned). 
 
@@ -56,6 +59,8 @@ In this case the acceptance rate (see below) is rather low. We can improve this
 by 
 * manually specifying a more suitable covariance matrix (set cov parameter equal to a valid covariance matrix).
 * adapting the proposal distribution based on the samples from the `burn in' period (set adapt = TRUE).
+By default we produce the nsteps samples by merging the output from nchains
+independent chains (default: nchains = 5).
 
 ## Assessing output
 
@@ -67,8 +72,7 @@ It is a good idea to check the output. First, check the average acceptance rate:
 One usually aims for a value in the range 0.1-0.8.
 
 Now check the behaviour of the chains. The chain_diagnosis() function plots, for each parameter of the posterior, the traces of each walker (gw) or
-chain (mh), the ACFs and the distributions. For more details of what
-is show, see the built-in help.
+chain (mh), the ACFs and the distributions. 
 ```R
   tonic::chain_diagnosis(chain)
 ```
@@ -76,7 +80,8 @@ is show, see the built-in help.
 ![example](figures/diagnostic.png)
 
 Here we see the chains seem to be long enough (ACF decays to zero, trace plots
-show no outlying walkers, ...)
+show no outlying walkers or trend in the mean, ...). For more details of what
+is shown, see the built-in help.
 
 ## Visualising
 
