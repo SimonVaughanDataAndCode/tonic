@@ -43,7 +43,8 @@ Now we can generate a sample from this posterior using the Goodman-Weare algorit
    chain <- tonic::gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 The output is list (chain) containing, among other things, an array (theta) with
-10,000 samples.
+10,000 samples. You must specify the name of the posterior function and the
+initial values for parameters (theta.0). For a list of other parameters (optional), see the built-in help.
 
 Note: there is a `burn in' period (of 2,000 samples, by default). This means the first few iterations are thrown away (not returned). 
 
@@ -51,13 +52,21 @@ Or use the random walk Metropolis-Hastings algorithm:
 ```R
    chain <- tonic::mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
+In this case the acceptance rate (see below) is rather low. We can improve this
+by adapting the proposal distribution based on the samples from the `burn in' period (set adapt = TRUE).
 
 ## Assessing output
 
-It is a good idea to check the output. The chain_diagnosis() function plots, 
-for each parameter of the posterior, the traces of each walker (gw) or
-chain (mh), the ACFs and the distributions.
+It is a good idea to check the output. First, check the average acceptance rate:
+```R
+   print(chain$accept.rate)
+```
 
+One usually aims for a value in the range 0.1-0.8.
+
+Now check the behaviour of the chains. The chain_diagnosis() function plots, for each parameter of the posterior, the traces of each walker (gw) or
+chain (mh), the ACFs and the distributions. For more details of what
+is show, see the built-in help.
 ```R
   tonic::chain_diagnosis(chain)
 ```
@@ -69,11 +78,11 @@ show no outlying walkers, ...)
 
 ## Visualising
 
-We can visualise the multivariable output of this using the contour_matrix() function.
+We can visualise the multivariate samples using the contour_matrix() function.
 ```R
-  tonic::contour_matrix(chain$theta)
+  tonic::contour_matrix(chain$theta, prob.levels = c(0.9, 0.99), smooth1d = TRUE)
 ```
-The [i,j] panel shows the theta[,i] variable plotted against th theta[,j] variable. Here we plot density contours, and points for data beyond the outermost contour. Along the diagonal ([i,i] panels) we show the density or histogram of variable theta[,i].
+The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i].
 
 This is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
 

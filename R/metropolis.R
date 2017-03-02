@@ -36,6 +36,7 @@
 #'   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
 #'   \item{method}{(string) sampling method used ("mh_sampler")}
 #'   \item{nchains}{number of chains used}
+#'   \item{accept.rate} (float) the fraction of proposals accepted.
 #' If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 #' dimensions \code{nchains * (nsteps/nchains) * M}.
 #' 
@@ -280,7 +281,8 @@ mh_sampler <- function(posterior,
               func = deparse(substitute(posterior)),
               lpost = lpost,
               method = "mh_sampler",
-              nchains = nchains))
+              nchains = nchains,
+              accept.rate = accept.rate))
 }
 
 
