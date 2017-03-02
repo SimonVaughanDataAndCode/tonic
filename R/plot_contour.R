@@ -56,9 +56,9 @@ interp_image <- function(image, x, y) {
   if (missing(x)) stop('Missing X input vector.')
   if (missing(y)) stop('Missing Y input vector.')
   
-  if (!exists("z", where=image)) stop('IMAGE input does not contain z array.')
-  if (!exists("x", where=image)) stop('IMAGE input does not contain x vector.')
-  if (!exists("y", where=image)) stop('IMAGE input does not contain y vector.')
+  if (!exists("z", where = image)) stop('IMAGE input does not contain z array.')
+  if (!exists("x", where = image)) stop('IMAGE input does not contain x vector.')
+  if (!exists("y", where = image)) stop('IMAGE input does not contain y vector.')
   
   if (length(x) != length(y)) stop('X and Y lengths differ.')
   
@@ -148,9 +148,9 @@ interp_image <- function(image, x, y) {
 #' n <- 1000
 #' x <- rnorm(n)
 #' y <- x + rnorm(n)
-#' img <- hist2d(x, y, npix=11)
+#' img <- hist2d(x, y, npix = 11)
 #' image(img$x, img$y, log10(img$z))
-#' points(x,y)
+#' points(x, y)
 #'
 #' @export
 hist2d <- function(x, y, 
@@ -174,8 +174,8 @@ hist2d <- function(x, y,
   
   # define the pixel locations in term of x and y
   
-  x.bin <- seq(xlim[1]-dx/2, xlim[2]+dx/2, by=dx)
-  y.bin <- seq(ylim[1]-dy/2, ylim[2]+dy/2, by=dy)
+  x.bin <- seq(xlim[1]-dx/2, xlim[2]+dx/2, by = dx)
+  y.bin <- seq(ylim[1]-dy/2, ylim[2]+dy/2, by = dy)
   
   # for each point (x,y) find which pixel it falls into
   
@@ -186,7 +186,8 @@ hist2d <- function(x, y,
   # Note: we need the explicit factor conversion here, otherwise
   # rows/columns with zero counts will be dropped from the table.
   
-  freq2D <- table( factor(x.pix, levels=1:npix), factor(y.pix, levels=1:npix) )
+  freq2D <- table( factor(x.pix, levels = 1:npix), 
+                   factor(y.pix, levels = 1:npix) )
     
   # if prob is TRUE then normalise so that thr area under the
   # histogram is 1.
@@ -202,7 +203,7 @@ hist2d <- function(x, y,
 
   # output the pixel x and y ordinates, and the 2D histogram (z)
 
-  img <- list(x=x.bin[1:npix], y=y.bin[1:npix], z=freq2D)
+  img <- list(x = x.bin[1:npix], y = y.bin[1:npix], z = freq2D)
   
   return(img)
   
@@ -244,11 +245,11 @@ hist2d <- function(x, y,
 #' n <- 1000
 #' x <- rnorm(n)
 #' y <- x + rnorm(n)
-#' img <- hist2d(x, y, npix=11)
+#' img <- hist2d(x, y, npix = 11)
 #' get_levels2d(img, prob = c(0.5, 0.9))
 #'
 #' @export
-get_levels2d <- function(img, prob=0.95) {
+get_levels2d <- function(img, prob = 0.95) {
   
   # check the inputs
 
@@ -317,9 +318,9 @@ get_levels1d <- function(x, prob = 0.95) {
   if (max(prob) > 1) stop('PROB > 1 error.')
   if (min(prob) < 0) stop('PROB < 0 error.')
   
-  prob.levels <- c( (1-prob)/2, 1-(1-prob)/2)
+  prob.levels <- c((1 - prob) / 2, 1 - (1 - prob) / 2)
   prob.levels <- sort(prob.levels)
-  quants <- quantile(x, probs=prob.levels)
+  quants <- quantile(x, probs = prob.levels)
   return( quants )
 }
 
@@ -361,7 +362,7 @@ get_levels1d <- function(x, prob = 0.95) {
 #' x <- rnorm(n)
 #' y <- x + rnorm(n)
 #' img <- hist2d(x, y, npix = 40)
-#' plot_density_contours(x,y, xlim = c(-4,4), ylim = c(-4, 4))
+#' plot_density_contours(x,y, xlim = c(-4, 4), ylim = c(-4, 4))
 #' axis(1); axis(2)
 #'
 #' @export
@@ -384,7 +385,7 @@ plot_density_contours <- function(x, y,
   
   # set up the plot window
   
-  plot(1, 1, type="n", main="", axes=FALSE, xlim=xlim, ylim=ylim,
+  plot(1, 1, type = "n", main = "", axes = FALSE, xlim = xlim, ylim = ylim,
        xlab = xlab, ylab = ylab, ...)
   
   # compute the 2D smoothed density, and density levels at which 
@@ -395,16 +396,20 @@ plot_density_contours <- function(x, y,
             min(ylim[1], min(y)), max(ylim[2], max(y)))
   
   if (smooth2d == TRUE) {
-    z <- MASS::kde2d(x,y, n=npix, lims=lims)
+    z <- MASS::kde2d(x, y, n = npix, lims = lims)
   } else {
-    z <- hist2d(x, y, npix=npix, lims, prob=TRUE)
+    z <- hist2d(x, y, npix = npix, lims, prob = TRUE)
   }
   
-  clevels <- get_levels2d(z, prob=prob.levels)
+  clevels <- get_levels2d(z, prob = prob.levels)
   
   # add contours to the plot
-  if (plot.image == TRUE) image(z$x, z$y, sqrt(z$z), add=TRUE, col=terrain.colors(20))
-  if (plot.contours == TRUE) contour(z, levels=clevels, drawlabels=FALSE, add=TRUE) 
+  if (plot.image == TRUE) {
+    image(z$x, z$y, sqrt(z$z), add = TRUE, col = terrain.colors(20))
+  }
+  if (plot.contours == TRUE) {
+    contour(z, levels = clevels, drawlabels = FALSE, add = TRUE) 
+  }
   
   # find the density at the position of each points
   
@@ -430,7 +435,13 @@ plot_density_contours <- function(x, y,
       x.p <- jitter(x.p)
       y.p <- jitter(y.p)
     }
-    points(x.p, y.p, pch=pch, cex=cex, col=col)
+    
+    transp <- 50
+    col.transp <- rgb(col2rgb("black")[1], col2rgb("black")[2], 
+                      col2rgb("black")[3], alpha = transp, 
+                      maxColorValue = 255)
+    
+    points(x.p, y.p, pch = pch, cex = cex, col = col.transp)
   }
   
 }
@@ -493,7 +504,8 @@ plot_density_contours <- function(x, y,
 #' x <- rnorm(n)
 #' y <- x + rnorm(n)
 #' img <- hist2d(x, y, npix = 40)
-#' junk <- plot_density(x, xlim = c(-4,4))
+#' junk <- plot_density(x, xlim = c(-4, 4))
+#' junk <- plot_density(x, xlim = c(-4, 4), smooth = TRUE)
 #' axis(1)
 #'
 #' @export
@@ -521,36 +533,61 @@ plot_density <- function(x,
   plot(0, 0, type = "n", xlab = xlab, ylab = ylab, main = main, xaxt = "n", 
        yaxt = "n", bty = "n", xlim = xlim, ylim = ylim, ...)
   
-  # plot histogram or density curve
+  # mark the median
+  col.line <- fill.col
 
-  nbin <- length(h$mids)
-  if (smooth == FALSE) {
-    x.plot <- c(xlim[1], rep(h$breaks, each=2), xlim[2])
-    y.plot <- c(0, 0, rep(h$density, each=2), 0, 0)
-    polygon(x.plot, y.plot, col = fill.col)
-    lines(c(h$breaks[1], h$breaks[1:nbin], h$breaks[nbin+1]),
-          c(0, h$density, 0), type="s", lwd=1)
-  } else {
-    if (!is.null(fill.col))
-        polygon(c(xlim[1], s$x, xlim[2]), c(0, s$y, 0), col=fill.col)
-    lines(s$x, s$y, lwd=1)
-  }
-
-  # mark mean and 1D intervals on histogram/density
+  # compute median value
+  med.x <- median(x)
+  mark <- c(med.x)
   
+  # define intervals ranges if prob is non-NULL
   if (!is.null(prob)) {
     nlevels <- length(prob)
-    clevels <- get_levels1d(x, prob=prob)
-    if (plot.lines == TRUE) {
-      abline(v=mean(x), lty=1, lwd=2, col="grey80")
-      abline(v = clevels, lty=2, lwd=2, col="grey80")
+    clevels <- get_levels1d(x, prob = prob)
+    mark <- c(mark, clevels)
+  }
+  
+  if (plot.lines == TRUE) {
+    for (i in 1:length(mark)) {
+      mark.x <- mark[i]
+      mark.y <- approx(s$x, s$y, mark.x)$y
+      if (smooth == FALSE) {
+        mark.intv <- findInterval(mark.x, h$breaks)
+        mark.y <- h$density[mark.intv]
+      }
+      lwd <- 2
+      if (i == 1) lwd <- 4
+      segments(mark.x, 0, mark.x, mark.y, lty = 1, lwd = lwd, col = col.line)
     }
+  }
+  
+  
+  # plot histogram or density curve
+  fill.col <- rgb(col2rgb(fill.col)[1], col2rgb(fill.col)[2], 
+                  col2rgb(fill.col)[3], alpha = 128, maxColorValue = 255)
+  nbin <- length(h$mids)
+  if (smooth == FALSE) {
+    x.plot <- c(xlim[1], rep(h$breaks, each = 2), xlim[2])
+    y.plot <- c(0, 0, rep(h$density, each = 2), 0, 0)
+    polygon(x.plot, y.plot, col = fill.col)
+    lines(c(h$breaks[1], h$breaks[1:nbin], h$breaks[nbin+1]),
+          c(0, h$density, 0), type = "s", lwd = 1)
+  } else {
+    if (!is.null(fill.col))
+        polygon(c(xlim[1], s$x, xlim[2]), c(0, s$y, 0), col = fill.col)
+        lines(s$x, s$y, lwd = 1)
+  }
+
+  
+  # update clevels with the mean, ready to return
+  if (!is.null(prob)) {
     clevels <- c( clevels[1:nlevels], mean(x), 
                   clevels[(nlevels+1):(2*nlevels)] )
   } else {
     clevels <- NULL
   }
   
+  # return the lower limits, mean, upper limits 
   return(clevels)
 }
 
@@ -616,11 +653,10 @@ plot_density <- function(x,
 #' The input \code{chain} should be a list such as produced by 
 #'   \code{gw_sampler} or \code{mh_sampler} that contains the following:
 #' \describe{ 
-#' \item{theta}{(array) n * ndim array of posterior samples
-#'             n samples of ndim vectors of parameters}
+#' \item{theta}{(array) \code{n * ndim} array of posterior samples
+#'             \code{n} samples of \code{ndim} vectors of parameters}
 #' \item{method}{(string) name of MCMC method used}
-#' \item{nwalkers}{number of walkers used (if \code{method = 'gw.mcmc'})}
-#' \item{nchains}{number of walkers used (if \code{method = 'mh.mcmc'})}
+#' \item{nchains}{number of chains/walkers used}
 #' }
 #' 
 #' The \code{upper} parameter determines what is to be shown in the upper-right
@@ -638,9 +674,9 @@ plot_density <- function(x,
 #' smoothed density rather than a fraction of the points.
 #' 
 #' @seealso \code{\link{gw_sampler}}, \code{\link{mh_sampler}}, 
-#   \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
-#   \code{\link{interp_image}}, \code{\link{hist2d}}, 
-#   \code{\link{plot_density}}, \code{\link{plot_density_contours}}
+#'   \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
+#'   \code{\link{interp_image}}, \code{\link{hist2d}}, \code{\link{plot_density}},
+#'   \code{\link{plot_density_contours}}
 #' 
 #' @examples 
 #' n <- 10000
@@ -662,19 +698,19 @@ contour_matrix <- function(theta,
                        upper = NA, 
                        dot.level = NULL,
                        breaks = 30, 
-                       smooth1d = FALSE, 
+                       smooth1d = TRUE, 
                        smooth2d = TRUE,
                        npix = 100, 
                        cex.lab = 1, 
                        cex.axis = 1, 
                        prob1d = NULL, 
                        sigma = FALSE, 
-                       jittr=FALSE, 
+                       jittr = FALSE, 
                        thin = NULL, 
                        pch = 1,
                        col = "black", 
                        plot.image = FALSE, 
-                       plot.1dlines = FALSE,
+                       plot.1dlines = TRUE,
                        fill.col = "steelblue3", ...) {
   
   # check the inputs
@@ -777,21 +813,21 @@ contour_matrix <- function(theta,
         # add axis labels to X axis (if on bottom row, j=M) or
         # on left column (i=1).
         
-        if (j == M) { mtext( labels[i], 1, line=3, cex=cex.lab ) }
-        if (i == 1) { mtext( labels[j], 2, line=3, cex=cex.lab ) }
+        if (j == M) { mtext( labels[i], 1, line=3, cex = cex.lab ) }
+        if (i == 1) { mtext( labels[j], 2, line=3, cex = cex.lab ) }
         
         # draw a box around the plot region
         
-        box(which="plot")
+        box(which = "plot")
         
         # add axes labels and tick marks only to outer
         # plots (as in the PAIRS function)
         
         if (i == 1) {
-          axis(2, label=TRUE, cex.axis=cex.axis)
+          axis(2, label = TRUE, cex.axis = cex.axis)
         } 
         if (j == M) {
-          axis(1, label=TRUE, cex.axis=cex.axis)
+          axis(1, label = TRUE, cex.axis = cex.axis)
         } 
       } 
       
@@ -800,7 +836,7 @@ contour_matrix <- function(theta,
       
       if (j == i) {
          levels1d.i <- plot_density(x, breaks, xlim, 
-                                prob=prob1d, smooth = smooth1d,
+                                prob = prob1d, smooth = smooth1d,
                                 fill.col = fill.col, plot.lines = plot.1dlines)
         
         if (i == 1) {
@@ -811,8 +847,8 @@ contour_matrix <- function(theta,
       
       # add a title/axis to the X axis if at the bottom-right panel
 
-        if (j == M) { mtext( labels[i], 1, line=3, cex=cex.lab ) }
-        if (i == M) { axis(1, labels=TRUE, cex.axis=cex.axis) }
+        if (j == M) { mtext( labels[i], 1, line = 3, cex = cex.lab ) }
+        if (i == M) { axis(1, labels = TRUE, cex.axis = cex.axis) }
       }
       
       # if we're in the upper right half of the plot array add
@@ -820,7 +856,7 @@ contour_matrix <- function(theta,
       
       if (i > j) {
         if (is.na(upper)) { 
-          plot(1, 1, type="n", xaxt="n", yaxt="n", bty="n")
+          plot(1, 1, type = "n", xaxt = "n", yaxt = "n", bty = "n")
           next 
         }
  
@@ -828,23 +864,23 @@ contour_matrix <- function(theta,
         
         if (upper == "points") {
           plot_density_contours(x, y, xlim, ylim, 
-                    plot.dots=TRUE, dot.level=0, plot.contours=FALSE, plot.image=FALSE,
-                    col=col, cex=cex, ...)
+                    plot.dots = TRUE, dot.level = 0, plot.contours = FALSE, 
+                    plot.image = FALSE, col = col, cex = cex, ...)
         }
         if (upper == "image") {
-          plot_density_contours(x, y, xlim, ylim, npix=npix,
-                    plot.dots=FALSE, dot.level=0, plot.contours=FALSE, plot.image=TRUE,
-                    col=col, cex=cex, ...)
+          plot_density_contours(x, y, xlim, ylim, npix = npix,
+                    plot.dots = FALSE, dot.level = 0, plot.contours = FALSE, 
+                    plot.image = TRUE, col = col, cex = cex, ...)
         }
         if (upper == "contour") {
-          plot_density_contours(x, y, xlim, ylim, prob.levels, npix=npix,
-                    plot.dots=FALSE, dot.level=0, plot.contours=TRUE, plot.image=FALSE,
-                    col=col, cex=cex, ...)
+          plot_density_contours(x, y, xlim, ylim, prob.levels, npix = npix,
+                    plot.dots = FALSE, dot.level = 0, plot.contours = TRUE, 
+                    plot.image = FALSE, col = col, cex = cex, ...)
         }
         
        # draw a box around the plot region
         
-        box(which="plot")
+        box(which = "plot")
       }            # end if (i > j)
 
     }              # end loop over j
@@ -857,7 +893,7 @@ contour_matrix <- function(theta,
     nlevels <- length(prob1d)
     rownames(levels1d) <- paste(labels)
     colnames(levels1d)[nlevels+1] <- "mean"
-    theta.intervals <- signif(levels1d,4)
+    theta.intervals <- signif(levels1d, 4)
   }
   
   # restore graphical parameters

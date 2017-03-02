@@ -17,9 +17,26 @@ The values of R.hat for each of the \code{M} variables.
 \code{chain_convergence} checks convergence of multiple Markov chains.
 }
 \details{
-Uses Gelman & Rubin's R.hat for each parameter, and also a visual check of 
-the 80\% regions for each parameter.
+Return and plot Gelman & Rubin's R.hat statistic for each parameter, 
+comparing within-chain and between-chain variances.
+Plot a comparison between the 80\% regions for each parameter.
 }
+\section{Notes}{
+
+This requires the input array be a two-dimensional array such as produced by
+ mh_sampler or gw_sampler, with results from each chain/walker merged.
+ The intervals are scaled so that each variable has mean 0 and std.dev 1
+ to make it easier to compare variables which might have very different 
+ scales.
+ 
+ If the chains are `well mixed' R.hat should be close to 1.0 (ideally <1.1)
+ and the intervals for each chain should share a lot of overlap. Note that
+ this is more useful for the output of the MH method. (The GW method works
+ best with a large ensemble of walkers - nwalkers >= 50 - but requires fewer
+ iterations of the full ensemble, so the inter-walker comparisons are less
+ useful.)
+}
+
 \seealso{
 \code{\link{Rhat}}
 }

@@ -25,16 +25,26 @@
 #'   
 #' @return none
 #' 
-#' @section Further details:
+#' @section Notes:
 #' The input \code{chain} should be a list such as produced by 
-#'   \code{gw.mcmc} or \code{mh_sampler} that contains the following:
+#'   \code{gw_sampler} or \code{mh_sampler} that contains the following:
 #' \describe{ 
 #' \item{theta}{(array) n * ndim array of posterior samples
 #'             n samples of ndim vectors of parameters}
 #' \item{method}{(string) name of MCMC method used}
-#' \item{nwalkers}{number of walkers used (if method = 'gw.mcmc')}
-#' \item{nchains}{number of walkers used (if method = 'mh_sampler')}
+#' \item{nchains}{number of chain/walkers used}
 #' }
+#' 
+#' The plot for parameter \code{i} contains three panels.
+#' 
+#' Top: trace plots showing (in different colours) the trace of each chain or
+#' walker for the parameter. The thick black lines shows the trace of the
+#' mean of the chains/walkers (averaged at each iteration).
+#' 
+#' Bottom left: autocorrelations. Black shows the ACF for the mean of the
+#' chains/walkers. Blue shows the mean of the ACFs of each chain/walker.
+#' 
+#' Bottom right: historgram of parameter \code{i} over all chains/walkers.
 #' 
 #' @seealso \code{\link{gw_sampler}}, \code{\link{mh_sampler}}
 #' 
@@ -44,7 +54,7 @@
 #'   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
 #'   return(logP)
 #' }
-#' chain <- gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+#' chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
 #' chain_diagnosis(chain)
 #'
 #' @export
@@ -68,15 +78,9 @@ chain_diagnosis <- function(chain, max.chain = 20, chatter = 0) {
   # dimensions of density / no. variables
   ndim <- NCOL(chain$theta)
   
-  nchains <- 1
-  # no. walkers if using ensemble method
-  if (chain$method == 'gw_sampler') {
-    nchains <- chain$nwalkers
-  } 
-  if (chain$method == 'mh_sampler') {
-    nchains <- chain$nchains
-  } 
-  
+  # no. chains (MH method) or walkers (GW method) 
+  nchains <- chain$nchains
+ 
   # total no. cycles
   ncycles <- floor(n / nchains)
   
@@ -213,14 +217,29 @@ Rhat <- function(theta) {
 #' 
 #' \code{chain_convergence} checks convergence of multiple Markov chains.
 #' 
-#' Uses Gelman & Rubin's R.hat for each parameter, and also a visual check of 
-#' the 80\% regions for each parameter.
+#' Return and plot Gelman & Rubin's R.hat statistic for each parameter, 
+#' comparing within-chain and between-chain variances.
+#' Plot a comparison between the 80\% regions for each parameter.
 #' 
 #' @param chain (array) of MCMC samples, \code{N} rows (sampled) by
 #' \code{M} columns (variables). 
 #' 
 #' @return
 #'  The values of R.hat for each of the \code{M} variables.
+#'  
+#' @section Notes:
+#' This requires the input array be a two-dimensional array such as produced by
+#'  mh_sampler or gw_sampler, with results from each chain/walker merged.
+#'  The intervals are scaled so that each variable has mean 0 and std.dev 1
+#'  to make it easier to compare variables which might have very different 
+#'  scales.
+#'  
+#'  If the chains are `well mixed' R.hat should be close to 1.0 (ideally <1.1)
+#'  and the intervals for each chain should share a lot of overlap. Note that
+#'  this is more useful for the output of the MH method. (The GW method works
+#'  best with a large ensemble of walkers - nwalkers >= 50 - but requires fewer
+#'  iterations of the full ensemble, so the inter-walker comparisons are less
+#'  useful.)
 #'  
 #' @seealso \code{\link{Rhat}}
 #'
@@ -240,15 +259,9 @@ chain_convergence <- function(chain) {
   # dimensions of density / no. variables
   ndim <- NCOL(chain$theta)
   
-  nchains <- 1
-  # no. walkers if using ensemble method
-  if (chain$method == 'gw_sampler') {
-    nchains <- chain$nwalkers
-  } 
-  if (chain$method == 'mh_sampler') {
-    nchains <- chain$nchains
-  } 
-  
+  # no. chains (MH method) or walkers (GW method) 
+  nchains <- chain$nchains
+    
   # total no. cycles
   ncycles <- floor(n / nchains)
   

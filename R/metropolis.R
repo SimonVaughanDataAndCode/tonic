@@ -35,8 +35,8 @@
 #'   \item{func}{(string) name of posterior function sampled}
 #'   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
 #'   \item{method}{(string) sampling method used ("mh_sampler")}
-#'   \item{nchains}{number of chains used}
-#'   \item{accept.rate} (float) the fraction of proposals accepted.
+#'   \item{nchains}{(integer) number of chains used}
+#'   \item{accept.rate}{(float) the fraction of proposals accepted.}
 #' If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 #' dimensions \code{nchains * (nsteps/nchains) * M}.
 #' 
@@ -85,7 +85,8 @@
 #' should return \code{-Inf}. Otherwise, the output of \code{posterior(theta,
 #' ...)} should be a real, scalar value.
 #'  
-#' @seealso \code{\link{chain_convergence}}, \code{\link{gw_sampler}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{gw_sampler}},
+#' \code{\link{chain_diagnosis}}, \code{\link{contour_matrix}}
 #' 
 #' @examples
 #' my_posterior <- function(theta) {

@@ -55,8 +55,8 @@
 #'   \item{func}{(string) name of posterior function sampled}
 #'   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
 #'   \item{method}{(string) sampling method used ("gwmcmc")}
-#'   \item{Nwalkers}{number of walkers used}
-#'   \item{accept.rate} (float) the fraction of proposals accepted.
+#'   \item{nchains}{(integer) number of walkers used}
+#'   \item{accept.rate}{(float) the fraction of proposals accepted.}
 #' If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 #' dimensions \code{nchains * (nsteps/nchains) * M}.
 #'   
@@ -101,7 +101,8 @@
 #' Once we have enough samples the output from all walkers is merged into a 
 #' single nsteps (rows) * M (columns) array.
 #'  
-#' @seealso \code{\link{chain_convergence}}, \code{\link{mh_sampler}}
+#' @seealso \code{\link{chain_convergence}}, \code{\link{mh_sampler}},
+#' \code{\link{chain_diagnosis}}, \code{\link{contour_matrix}}
 #' 
 #' @examples 
 #' my_posterior <- function(theta) {
@@ -314,7 +315,7 @@ gw_sampler <- function(posterior,
               func = deparse(substitute(posterior)),
               lpost = lpost,
               method = "gw_sampler",
-              nwalkers = nwalkers,
+              nchains = nwalkers,
               accept.rate = accept.rate))
 }
 

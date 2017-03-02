@@ -4,8 +4,8 @@
 \alias{mh_sampler}
 \title{Random Walk Metropolis-Hastings sampler using multiple chains.}
 \usage{
-mh_sampler(posterior, theta.0, nsteps = 10000, nchains = 5, burn.in = 10,
-  update = 5, chatter = 0, cov = NULL, thin = NULL,
+mh_sampler(posterior, theta.0, nsteps = 10000, nchains = 5,
+  burn.in = 2000, update = 5, chatter = 0, cov = NULL, thin = NULL,
   merge.chains = TRUE, adapt = FALSE, proposal = "normal", ...)
 }
 \arguments{
@@ -17,7 +17,7 @@ mh_sampler(posterior, theta.0, nsteps = 10000, nchains = 5, burn.in = 10,
 
 \item{nchains}{(integer) number of distinct 'chains' to run.}
 
-\item{burn.in}{(integer) the 'burn-in' period for the walkers}
+\item{burn.in}{(integer) the 'burn-in' period for the ensemble.}
 
 \item{update}{(integer) print a progress update after \code{update} steps}
 
@@ -43,7 +43,8 @@ A list with components
   \item{func}{(string) name of posterior function sampled}
   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
   \item{method}{(string) sampling method used ("mh_sampler")}
-  \item{nchains}{number of chains used}
+  \item{nchains}{(integer) number of chains used}
+  \item{accept.rate}{(float) the fraction of proposals accepted.}
 If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 dimensions \code{nchains * (nsteps/nchains) * M}.
 }

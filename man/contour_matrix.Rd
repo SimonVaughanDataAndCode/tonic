@@ -87,11 +87,10 @@ kernal density estimate, and finding the contours that encolse a fraction
 The input \code{chain} should be a list such as produced by 
   \code{gw_sampler} or \code{mh_sampler} that contains the following:
 \describe{ 
-\item{theta}{(array) n * ndim array of posterior samples
-            n samples of ndim vectors of parameters}
+\item{theta}{(array) \code{n * ndim} array of posterior samples
+            \code{n} samples of \code{ndim} vectors of parameters}
 \item{method}{(string) name of MCMC method used}
-\item{nwalkers}{number of walkers used (if \code{method = 'gw.mcmc'})}
-\item{nchains}{number of walkers used (if \code{method = 'mh.mcmc'})}
+\item{nchains}{number of chains/walkers used}
 }
 
 The \code{upper} parameter determines what is to be shown in the upper-right
@@ -122,5 +121,8 @@ contour_matrix(dat, prob.levels=c(1,2), cex=0.5, npix=100, sigma=TRUE,
 
 }
 \seealso{
-\code{\link{gw_sampler}}, \code{\link{mh_sampler}},
+\code{\link{gw_sampler}}, \code{\link{mh_sampler}}, 
+  \code{\link{get_levels2d}}, \code{\link{get_levels1d}}, 
+  \code{\link{interp_image}}, \code{\link{hist2d}}, \code{\link{plot_density}},
+  \code{\link{plot_density_contours}}
 }

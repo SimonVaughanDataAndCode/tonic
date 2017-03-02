@@ -5,7 +5,7 @@
 \title{Goodman-Weare Markov Chain Monte Carlo sampler}
 \usage{
 gw_sampler(posterior, theta.0, nsteps = 10000, nwalkers = 100,
-  burn.in = 2000, update = 5, chatter = 0, thin = NULL,
+  burn.in = 10000, update = 5, chatter = 0, thin = NULL,
   scale.init = NULL, cov.init = NULL, walk.rate = 0, atune = 2,
   stune = NULL, merge.walkers = TRUE, ...)
 }
@@ -18,7 +18,7 @@ gw_sampler(posterior, theta.0, nsteps = 10000, nwalkers = 100,
 
 \item{nwalkers}{(integer) number of 'walkers' (default: 100; should be > M)}
 
-\item{burn.in}{(integer) the 'burn-in' period for the walkers}
+\item{burn.in}{(integer) the 'burn-in' period for the ensemble.}
 
 \item{update}{(integer) print a progress update after \code{update} steps}
 
@@ -47,7 +47,8 @@ A list with components
   \item{func}{(string) name of posterior function sampled}
   \item{lpost}{(vector) nsteps values of the LogPosterior density at each sample position}
   \item{method}{(string) sampling method used ("gwmcmc")}
-  \item{Nwalkers}{number of walkers used}
+  \item{nchains}{(integer) number of walkers used}
+  \item{accept.rate}{(float) the fraction of proposals accepted.}
 If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 dimensions \code{nchains * (nsteps/nchains) * M}.
 }
@@ -81,10 +82,12 @@ possible moves: the 'stretch move' (handled by the seperate function
 \code{walk_move})
 
 Burn-in: There is an initial period (called the 'burn-in' period) of
-\code{burn.in} cycles that from the beginning of the chain that is discarded.
+\code{burn.in} steps that from the beginning of the chain that is discarded.
 This is to help remove memory of the start positions. After a few cycles the
 ensemble should have found regions of high posterior density even if started
-from a region of low density.
+from a region of low density. We recommend a minimum of \code{burn.in = 
+100*nwalkers} to give the ensemble a chance to move into and cover 
+the high density region(s).
 
 The chain is then run until there are at least \code{nsteps} total samples.
 Each cycle produces \code{nwalkers} samples (one from each walker). So we run
@@ -107,7 +110,8 @@ my_posterior <- function(theta) {
   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
   return(logP)
 }
-chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), 
+                    nsteps = 10e4, burn.in = 1e4) 
 
 }
 \seealso{

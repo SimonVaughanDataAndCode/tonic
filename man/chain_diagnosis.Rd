@@ -4,10 +4,13 @@
 \alias{chain_diagnosis}
 \title{Plots for assessing MCMC output.}
 \usage{
-chain_diagnosis(chain, max.chain = 20)
+chain_diagnosis(chain, max.chain = 20, chatter = 0)
 }
 \arguments{
 \item{chain}{(list) containing output data from an MCMC, including}
+
+\item{chatter}{(integer) how verbose is the output? 
+(0=quiet, 1=normal, 2=verbose)}
 
 \item{max.chains}{maximum no. chains to overlay on trace plot}
 }
@@ -21,17 +24,27 @@ none
 Generate plots of chain traces (variable values vs. iteration), 
 auto-correlation plots and 1D densities (histograms).
 }
-\section{Further details}{
+\section{Notes}{
 
 The input \code{chain} should be a list such as produced by 
-  \code{gw.mcmc} or \code{mh_sampler} that contains the following:
+  \code{gw_sampler} or \code{mh_sampler} that contains the following:
 \describe{ 
 \item{theta}{(array) n * ndim array of posterior samples
             n samples of ndim vectors of parameters}
 \item{method}{(string) name of MCMC method used}
-\item{nwalkers}{number of walkers used (if method = 'gw.mcmc')}
-\item{nchains}{number of walkers used (if method = 'mh_sampler')}
+\item{nchains}{number of chain/walkers used}
 }
+
+The plot for parameter \code{i} contains three panels.
+
+Top: trace plots showing (in different colours) the trace of each chain or
+walker for the parameter. The thick black lines shows the trace of the
+mean of the chains/walkers (averaged at each iteration).
+
+Bottom left: autocorrelations. Black shows the ACF for the mean of the
+chains/walkers. Blue shows the mean of the ACFs of each chain/walker.
+
+Bottom right: historgram of parameter \code{i} over all chains/walkers.
 }
 
 \examples{
@@ -40,7 +53,7 @@ my_posterior <- function(theta) {
   logP <- mvtnorm::dmvnorm(theta, mean = c(-1, 2, 0), sigma = cov, log = TRUE)
   return(logP)
 }
-chain <- gw.mcmc(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
+chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1e4) 
 chain_diagnosis(chain)
 
 }

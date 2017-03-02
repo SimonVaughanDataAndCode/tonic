@@ -127,6 +127,7 @@ Getting well-behaved MCMC output can be tricky. If the chains are not well-mixed
 * use more walkers or chains (GW method: nwalkers; MH method: nchains).
 * adjust the details of the update move in the GW method (parameters: walk.rate, atune, stune).
 * let the chains run for longer (nsteps).
+
 ## Help
 
 For more help on each function, try the in-built help, e.g.
@@ -152,4 +153,4 @@ which tonic was developed:
 
 [S. Vaughan et al., 2016, MNRAS, v461, pp3145-3152](http://adsabs.harvard.edu/abs/2016MNRAS.461.3145V)
 
-The contour_matrix() function is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
+The contour_matrix() and mh_sampler() functions are a development of the code used to produce Fig. 2 of [S. Vaughan (2010, MNRAS, v402, pp307-320)](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V); the former is based on the pairs() plots of base R.
