@@ -23,7 +23,7 @@ Now you can install tonic straight from GitHub:
 ```
 It will also install the [mvtnorm](https://cran.r-project.org/web/packages/mvtnorm/index.html) package which it depends on. Now you're good to go.
 
-## Sampling
+## Sampling (Goodman-Weare method)
 
 Let's define a posterior to sample. This should be an R function that 
 * takes a vector of parameters as its first argument,
@@ -49,6 +49,8 @@ initial values for parameters (theta.0).
 * You may change the number of walkers (default: nwalkers = 100).
 * There is a `burn in' period (default: burn.in = 2000). This means the first few iterations are thrown away (not returned). 
 * For a list of other parameters (optional), see the built-in help.
+
+## Sampling (random walk Metropolis-Hastings method)
 
 Or use the random walk Metropolis-Hastings algorithm:
 ```R
@@ -76,6 +78,7 @@ chain (mh), the ACFs and the distributions.
   tonic::chain_diagnosis(chain)
 ```
 
+Here is an example using output from gw_sampler().
 ![example](figures/diagnostic.png)
 
 Here we see the chains seem to be long enough (ACF decays to zero, trace plots
@@ -89,8 +92,6 @@ We can visualise the multivariate samples using the contour_matrix() function.
   tonic::contour_matrix(chain$theta, prob.levels = c(0.9, 0.99), smooth1d = TRUE)
 ```
 The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] variable. We plot density contours enclosing 90\% and 99\% of the mass, and points for samples beyond the outermost contour. Along the diagonal ([i, i] panels) we show the (smoothed) density (optionally: histogram) of variable theta[, i]. For more on how to customise the plot, see the built-in help.s
-
-This is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
 
 ![example](figures/matrix.png)
 
@@ -118,3 +119,5 @@ If you find tonic useful in your work, please cite the following paper for
 which tonic was developed:
 
 [S. Vaughan et al., 2016, MNRAS, v461, pp3145-3152](http://adsabs.harvard.edu/abs/2016MNRAS.461.3145V)
+
+The contour_matrix() function is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
