@@ -25,7 +25,11 @@ It will also install the [mvtnorm](https://cran.r-project.org/web/packages/mvtno
 
 ## Sampling
 
-Let's define a psterior to sample. Tis should be an R function that takes a vector of parameters as its first argument, and returns a (scalar) log density (up to some normalisation constant). Here we'll use a multivariate normal as a simple example.
+Let's define a posterior to sample. Tis should be an R function that 
+* takes a vector of parameters as its first argument,
+* returns a (scalar) log density (up to some normalisation constant,
+* return -Inf where the posterior is zero (e.g. because prior is zero).
+Here we'll use a multivariate normal as a simple example.
 
 ```R
   my_posterior <- function(theta) {
@@ -39,10 +43,9 @@ Now we can generate a sample from this posterior using the Goodman-Weare algorit
    chain <- tonic::gw_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 1e4)
 ```
 The output is list (chain) containing, among other things, an array (theta) with
-$10^4$ samples.
+10,000 samples.
 
-Note: there is a `burn in' period (of 2000, by default). This means the first 
-few iterations are thrown away (not returned). 
+Note: there is a `burn in' period (of 2,000 samples, by default). This means the first few iterations are thrown away (not returned). 
 
 Or use the random walk Metropolis-Hastings algorithm:
 ```R
@@ -66,17 +69,13 @@ show no outlying walkers, ...)
 
 ## Visualising
 
-We can visualise the multivariable output of this using the contour_matrix function.
+We can visualise the multivariable output of this using the contour_matrix() function.
 ```R
   tonic::contour_matrix(chain$theta)
 ```
-The [i,j] panel shows the theta[,i] variable plotted against th theta[,j] variable. 
-Here we plot density contours, and points for data beyond the outermost contour. 
-Along the diagonal ([i,i] panels) we show the density or histogram of variable theta[,i].
+The [i,j] panel shows the theta[,i] variable plotted against th theta[,j] variable. Here we plot density contours, and points for data beyond the outermost contour. Along the diagonal ([i,i] panels) we show the density or histogram of variable theta[,i].
 
-This is an extension of the plot (Fig. 2) used in [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V).
-
-Below is an example plot for a five-variable problem.
+This is a development of the code used to produce Fig. 2 of [Vaughan 2010, MNRAS, v402, pp307-320](http://adsabs.harvard.edu/abs/2010MNRAS.402..307V), and is based on the pairs() plots of base R.
 
 ![example](figures/matrix.png)
 
@@ -84,15 +83,14 @@ Below is an example plot for a five-variable problem.
 
 For more help on each comment, try the in-built help, e.g.
 ```R
-   ?gw_sampler
-   ?mh_sampler
-   ?contour_matrix
-   ?chain_convergence
+   ? tonic::gw_sampler
+   ? tonic::mh_sampler
+   ? tonic::contour_matrix
+   ? tonic::chain_convergence
 ```
 
 ## To do
 
-* complete documentation of functions
 * annealing? (with evidence calculation)
 * evidence from nested sampling?
 * periodic saving of output
