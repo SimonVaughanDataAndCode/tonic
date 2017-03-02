@@ -97,7 +97,7 @@ The [i, j] panel shows the theta[, i] variable plotted against the theta[, j] va
 
 ## Help
 
-For more help on each comment, try the in-built help, e.g.
+For more help on each function, try the in-built help, e.g.
 ```R
    ? tonic::gw_sampler
    ? tonic::mh_sampler
@@ -107,10 +107,10 @@ For more help on each comment, try the in-built help, e.g.
 
 ## To do
 
-* annealing? (with evidence calculation)
-* evidence from nested sampling?
 * periodic saving of output
 * configure input/output so that can pick-up chain(s) where left off.
+* annealing? (with evidence calculation)
+* evidence from nested sampling?
 * add Laplace evidence function, MAP finder
  
 ## Referencing tonic
