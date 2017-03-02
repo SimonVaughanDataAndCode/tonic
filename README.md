@@ -73,7 +73,7 @@ is show, see the built-in help.
   tonic::chain_diagnosis(chain)
 ```
 
-![example](figures/diagnosis.png)
+![example](figures/diagnostic.png)
 
 Here we see the chains seem to be long enough (ACF decays to zero, trace plots
 show no outlying walkers, ...)
