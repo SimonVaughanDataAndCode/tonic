@@ -447,38 +447,6 @@ plot_density_contours <- function(x, y,
 }
 
 # --------------------------------------------------
-# NAME: 
-#     plot_density
-#
-# PURPOSE:
-#     Produce a single histogram or density plot
-#
-# AUTHOR:
-#     Simon Vaughan
-#
-# CALLING SEQUENCE:
-#     plot_density(x)
-#
-# INPUTS:
-#   x         - vector of values
-#
-# OPTIONAL INPUTS:
-#   breaks    - specify the break positions for a histogram
-#   xlim      - 2 element vector of limits for x axis
-#   prob      - mark probability intervals (NULL or vector)
-#   smooth    - FALSE = plot histogram, TRUE = plot smooth density
-#   fill.col  - colour for filling histogram/density plot
-#   xlab, xlab, main - plot titles, same as plot()
-#
-# OUTPUT:
-#   clevels   - the quantiles for the input probability levels
-#
-# History:
-#  04/04/16 - v0.1 - First working version
-#  28/04/16 - v0.2 - Fixed bug in quantile estimation
-#  16/06/16 - v0.3 - Return NULL when prob not given at input
-#                     added inputs for xlab, ylab, main and '...'.
-#
 # Simon Vaughan, University of Leicester
 # Copyright (C) 2016 Simon Vaughan
 # --------------------------------------------------
@@ -492,6 +460,7 @@ plot_density_contours <- function(x, y,
 #' @param x (vector) x data values.
 #' @param xlim (vector) The limits of the x axis (x1, x2).
 #' @param xlab,ylab (strings) Labels for x, y axes.
+#' @param logx (logical) produce density of log(variable)?
 #' @inheritParams contour_matrix
 #'
 #' @return
@@ -514,8 +483,9 @@ plot_density <- function(x,
                       xlim, 
                       prob = NULL, 
                       smooth = FALSE, 
-                      fill.col = NULL,
+                      fill.col = "steelblue",
                       plot.lines = TRUE,
+                      logx = FALSE,
                       xlab = "",
                       ylab = "",
                       main = "",
@@ -525,7 +495,14 @@ plot_density <- function(x,
   
   h <- hist(x, breaks=breaks, plot=FALSE)
   s <- density(x, n=2^14)
-  
+
+  if (logx == TRUE) {
+    h <- hist(log10(x), breaks=breaks, plot=FALSE)
+    s <- density(log10(x), n=2^14)
+    h$density <- h$density * 10^h$mids
+    s$y <- s$y * 10^s$x
+  }
+    
   # prepare the plot window
   
   ylim <- c(0, max(h$density))
