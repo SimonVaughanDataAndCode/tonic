@@ -5,8 +5,8 @@
 \title{Produce a 1D density/histogram plot given data values \code{x}.}
 \usage{
 plot_density(x, breaks = 30, xlim, prob = NULL, smooth = FALSE,
-  fill.col = NULL, plot.lines = TRUE, xlab = "", ylab = "", main = "",
-  ...)
+  fill.col = "steelblue", plot.lines = TRUE, logx = FALSE, xlab = "",
+  ylab = "", main = "", ...)
 }
 \arguments{
 \item{x}{(vector) x data values.}
@@ -16,6 +16,8 @@ plot_density(x, breaks = 30, xlim, prob = NULL, smooth = FALSE,
 \item{xlim}{(vector) The limits of the x axis (x1, x2).}
 
 \item{fill.col}{(string) Colour to use under the histogram.}
+
+\item{logx}{(logical) produce density of log(variable)?}
 
 \item{xlab, ylab}{(strings) Labels for x, y axes.}
 
@@ -36,7 +38,8 @@ n <- 1000
 x <- rnorm(n)
 y <- x + rnorm(n)
 img <- hist2d(x, y, npix = 40)
-junk <- plot_density(x, xlim = c(-4,4))
+junk <- plot_density(x, xlim = c(-4, 4))
+junk <- plot_density(x, xlim = c(-4, 4), smooth = TRUE)
 axis(1)
 
 }

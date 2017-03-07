@@ -115,5 +115,6 @@ chain <- gw_sampler(my_posterior, theta.0 = c(0,0,0),
 
 }
 \seealso{
-\code{\link{chain_convergence}}, \code{\link{mh_sampler}}
+\code{\link{chain_convergence}}, \code{\link{mh_sampler}},
+\code{\link{chain_diagnosis}}, \code{\link{contour_matrix}}
 }

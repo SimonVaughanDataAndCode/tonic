@@ -64,7 +64,7 @@ n <- 1000
 x <- rnorm(n)
 y <- x + rnorm(n)
 img <- hist2d(x, y, npix = 40)
-plot_density_contours(x,y, xlim = c(-4,4), ylim = c(-4, 4))
+plot_density_contours(x,y, xlim = c(-4, 4), ylim = c(-4, 4))
 axis(1); axis(2)
 
 }

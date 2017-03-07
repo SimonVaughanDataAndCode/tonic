@@ -113,5 +113,6 @@ chain <- mh_sampler(my_posterior, theta.0 = c(0,0,0), nsteps = 10e4, burn.in = 1
 
 }
 \seealso{
-\code{\link{chain_convergence}}, \code{\link{gw_sampler}}
+\code{\link{chain_convergence}}, \code{\link{gw_sampler}},
+\code{\link{chain_diagnosis}}, \code{\link{contour_matrix}}
 }

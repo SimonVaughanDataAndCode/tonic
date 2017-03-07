@@ -38,9 +38,9 @@ The output \code{img} is a list with three components:
 n <- 1000
 x <- rnorm(n)
 y <- x + rnorm(n)
-img <- hist2d(x, y, npix=11)
+img <- hist2d(x, y, npix = 11)
 image(img$x, img$y, log10(img$z))
-points(x,y)
+points(x, y)
 
 }
 \seealso{

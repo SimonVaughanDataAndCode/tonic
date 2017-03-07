@@ -6,10 +6,10 @@
 \usage{
 contour_matrix(theta, ranges = NULL, cex = 1, prob.levels = c(0.9, 0.95),
   labels = colnames(theta), upper = NA, dot.level = NULL, breaks = 30,
-  smooth1d = FALSE, smooth2d = TRUE, npix = 100, cex.lab = 1,
+  smooth1d = TRUE, smooth2d = TRUE, npix = 100, cex.lab = 1,
   cex.axis = 1, prob1d = NULL, sigma = FALSE, jittr = FALSE,
   thin = NULL, pch = 1, col = "black", plot.image = FALSE,
-  plot.1dlines = FALSE, fill.col = "steelblue3", ...)
+  plot.1dlines = TRUE, fill.col = "steelblue3", ...)
 }
 \arguments{
 \item{theta}{(array) \code{N} by \code{M} array of parameter values}

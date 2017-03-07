@@ -35,7 +35,7 @@ The input \code{img} should be a list with three components:
 n <- 1000
 x <- rnorm(n)
 y <- x + rnorm(n)
-img <- hist2d(x, y, npix=11)
+img <- hist2d(x, y, npix = 11)
 get_levels2d(img, prob = c(0.5, 0.9))
 
 }
