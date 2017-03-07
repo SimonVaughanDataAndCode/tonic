@@ -497,10 +497,13 @@ plot_density <- function(x,
   s <- density(x, n=2^14)
 
   if (logx == TRUE) {
-    h <- hist(log10(x), breaks=breaks, plot=FALSE)
-    s <- density(log10(x), n=2^14)
-    h$density <- h$density * 10^h$mids
-    s$y <- s$y * 10^s$x
+    lh <- hist(log10(x), breaks=breaks, plot=FALSE)
+    h <- hist(x, breaks = 10^(lh$breaks), plot = FALSE)
+    h$density <- h$density * h$mids
+    h$breaks <- log10(h$breaks)
+    indx <- (s$x > 0)
+    s$y <- s$y[indx] * s$x[indx]
+    s$x <- log10(s$x[indx])
   }
     
   # prepare the plot window
