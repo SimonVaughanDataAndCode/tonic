@@ -5,6 +5,7 @@
 #
 # History:
 #  14/07/16 - v0.1 - First working version
+#  14/03/19 - v0.2 - Cumulative updates, many.
 #
 # Simon Vaughan, University of Leicester
 # Copyright (C) 2016 Simon Vaughan
