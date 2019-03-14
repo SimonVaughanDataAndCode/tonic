@@ -122,7 +122,7 @@ mh_sampler <- function(posterior,
   M <- length(theta.0)
   
   # default covariance matrix if none supplied
-  cov <- diag(M)
+  if (is.null(cov)) cov <- diag(M)
 
   # ensure the number of steps, walkers, etc. are integers  
   nsteps <- as.integer(nsteps)
@@ -152,6 +152,13 @@ mh_sampler <- function(posterior,
      theta[1, j, 1:M] <- z  # randomized start position
      theta[1, j, M+1] <- 1  # accept
      theta[1, j, M+2] <- posterior(z, ...)
+     if (chatter > 1) {
+       cat('-- chain', j, 'theta.init = ', theta[1, j, 1:M], 
+           'posterior = ', theta[1, j, M+2], fill=TRUE)
+       cat('-- covariance matrix for initial position randomisation :', 
+           fill = TRUE)
+       print(cov)
+     }
   }
 
   # check that the density is positive at the starting positions
@@ -160,6 +167,9 @@ mh_sampler <- function(posterior,
     start.densities[j] <- posterior(theta[1, j, 1:M], ...)
   }
   if (!all(is.finite(start.densities))) {
+    cat('-- theta: ', fill=TRUE)
+    print(theta[1, , 1:M])
+    cat('-- density: ', start.densities, fill = TRUE)
     stop('** Non-finite values of log posterior at initial values.')
   }
   
