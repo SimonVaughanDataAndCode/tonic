@@ -11,6 +11,6 @@ my_posterior <- function(theta) {
 # ------------------------------------------------
 # test
 
-chain <- gw.mcmc(my_posterior, theta.0=c(0,0,0), nsteps=10e4, burn.in = 1e4)
-mcmc.diag.plot(chain)
-cont.pairs(chain$theta, prob.levels=c(0.683, 0.9, 0.99), smooth1d=TRUE)
+chain <- gw_sampler(my_posterior, theta.0=c(0,0,0), nsteps=10e4, burn.in = 1e4)
+chain_diagnosis(chain)
+contour_matrix(chain$theta, prob.levels=c(0.683, 0.9, 0.99), smooth1d=TRUE)
