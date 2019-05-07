@@ -5,8 +5,9 @@
 \title{Random Walk Metropolis-Hastings sampler using multiple chains.}
 \usage{
 mh_sampler(posterior, theta.0, nsteps = 10000, nchains = 5,
-  burn.in = 2000, update = 5, chatter = 0, cov = NULL, thin = NULL,
-  merge.chains = TRUE, adapt = FALSE, proposal = "normal", ...)
+  burn.in = 2000, update = 5, chatter = 0, cov = NULL,
+  thin = NULL, merge.chains = TRUE, adapt = FALSE,
+  proposal = "normal", ...)
 }
 \arguments{
 \item{posterior}{(function) name of the log(densiy) function to sampling from}
@@ -45,6 +46,7 @@ A list with components
   \item{method}{(string) sampling method used ("mh_sampler")}
   \item{nchains}{(integer) number of chains used}
   \item{accept.rate}{(float) the fraction of proposals accepted.}
+  \item{fcall}{Full list of the function call.}
 If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 dimensions \code{nchains * (nsteps/nchains) * M}.
 }

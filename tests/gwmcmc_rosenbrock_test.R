@@ -29,26 +29,26 @@ rosenbrock <- function(theta) {
 # test MCMC
   
 # generate a chain
-  chain <- gw.mcmc(rosenbrock, theta.0 = c(0,0), 
+  chain <- gw_sampler(rosenbrock, theta.0 = c(0,0), 
                    nsteps = 1e5, burn.in = 1e5,
                    chatter = 1, walk.rate = 5,
                    thin = 1)
   
 # use diagnostic plots
-  mcmc.diag.plot(chain)
+  chain_diagnosis(chain)
 
 # plot the points
   layout(1)
+
+  #plot_density(chain$theta)
   plot(chain$theta[,1], chain$theta[,2], bty = "n", 
        pch = 1, cex = 0.5)
-
-  cont.pairs(chain$theta)
   
 # ------------------------------------------------
 # use the plotting function from plot_contour.R
 
 # plot density contours of chain output
-  plot.cont(chain$theta[,1], chain$theta[,2], npix = 100, smooth2d = FALSE,
+  plot_density_contours(chain$theta[,1], chain$theta[,2], npix = 100, smooth2d = FALSE,
             xlim = range(-5, 6), ylim = range(-2, 35),
             prob.levels = c(0.9, 0.99))
   axis(1)

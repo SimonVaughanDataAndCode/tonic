@@ -317,8 +317,8 @@ gw_sampler <- function(posterior,
               lpost = lpost,
               method = "gw_sampler",
               nchains = nwalkers,
-              accept.rate = accept.rate),
-              fcall = as.list(match.call()))
+              accept.rate = accept.rate,
+              fcall = as.list(match.call())))
 }
 
 # ------------------------------------------------

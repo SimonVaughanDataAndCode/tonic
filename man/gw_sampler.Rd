@@ -49,6 +49,7 @@ A list with components
   \item{method}{(string) sampling method used ("gwmcmc")}
   \item{nchains}{(integer) number of walkers used}
   \item{accept.rate}{(float) the fraction of proposals accepted.}
+  \item{fcall}{Full list of the function call.}
 If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 dimensions \code{nchains * (nsteps/nchains) * M}.
 }

@@ -3,14 +3,9 @@ Title: Generate and test MCMC output using RW-MH or Goodman-Weare methods
 Version: 0.0.0.9000
 Authors@R: person("Simon", "Vaughan", email = "svdataman@gmail.com", role = c("aut", "cre"))
 Description: Tonic is a collection of pure R tools for generating and manipulating MCMC output. 
-The current version includes the top-level functions: 
- gw.mcmc    - sample a target density using the ensemble sampler of Goodman & Weare (2010)
- mh.mcmc    - sample a target density using the random walk M-H method 
- cont.pairs - plot an NxN matrix summarising pairwise relationships between variables
- mcmc.diag.plots - make diagnostic plots of chain outputs
 Depends: R (>= 3.2.2)
 License: MIT + file LICENSE
 LazyData: true
 Imports: 
    mvtnorm
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

@@ -295,8 +295,8 @@ mh_sampler <- function(posterior,
               lpost = lpost,
               method = "mh_sampler",
               nchains = nchains,
-              accept.rate = accept.rate),
-              fcall = as.list(match.call()))
+              accept.rate = accept.rate,
+              fcall = as.list(match.call())))
 }
 
 

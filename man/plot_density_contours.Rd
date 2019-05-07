@@ -4,9 +4,10 @@
 \alias{plot_density_contours}
 \title{Produce a 2D density/histogram plot given data values \code{x, y}.}
 \usage{
-plot_density_contours(x, y, xlim, ylim, npix = 25, prob.levels = c(0.683,
-  0.9), plot.dots = TRUE, plot.contours = TRUE, plot.image = FALSE,
-  dot.level = NULL, jittr = FALSE, col = "black", pch = 1, cex = 1,
+plot_density_contours(x, y, xlim, ylim, npix = 25,
+  prob.levels = c(0.683, 0.9), plot.dots = TRUE,
+  plot.contours = TRUE, plot.image = FALSE, dot.level = NULL,
+  jittr = FALSE, col = "black", pch = 1, cex = 1,
   smooth2d = TRUE, xlab = "", ylab = "", ...)
 }
 \arguments{

@@ -5,8 +5,8 @@
 \title{Produce a 1D density/histogram plot given data values \code{x}.}
 \usage{
 plot_density(x, breaks = 30, xlim, prob = NULL, smooth = FALSE,
-  fill.col = "steelblue", plot.lines = TRUE, logx = FALSE, xlab = "",
-  ylab = "", main = "", ...)
+  fill.col = "steelblue", plot.lines = TRUE, logx = FALSE,
+  xlab = "", ylab = "", main = "", ...)
 }
 \arguments{
 \item{x}{(vector) x data values.}
