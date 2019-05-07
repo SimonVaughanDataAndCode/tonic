@@ -38,6 +38,7 @@
 #'   \item{method}{(string) sampling method used ("mh_sampler")}
 #'   \item{nchains}{(integer) number of chains used}
 #'   \item{accept.rate}{(float) the fraction of proposals accepted.}
+#'   \item{fcall}{Full list of the function call.}
 #' If \code{merge.chains = FALSE} then \code{theta} will be a 3D array with
 #' dimensions \code{nchains * (nsteps/nchains) * M}.
 #' 
@@ -294,7 +295,8 @@ mh_sampler <- function(posterior,
               lpost = lpost,
               method = "mh_sampler",
               nchains = nchains,
-              accept.rate = accept.rate))
+              accept.rate = accept.rate),
+              fcall = as.list(match.call()))
 }
 
 
